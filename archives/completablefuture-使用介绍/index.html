@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="周怡">
+  
+  <meta name="description" content="CompletableFuture 使用介绍">
+  
+  
+  <meta name="keywords" content="Java8,, CompletableFuture">
+  
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="CompletableFuture 使用介绍"/>
+<meta name="twitter:description" content="CompletableFuture 使用介绍"/>
+
+  <meta property="og:title" content="CompletableFuture 使用介绍" />
+<meta property="og:description" content="CompletableFuture 使用介绍" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zhouyi.tech/archives/completablefuture-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/" />
+<meta property="article:published_time" content="2020-06-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-06-24T00:00:00+00:00" /><meta property="og:site_name" content="技术学习之路" />
+
+
+  
+
+
+
+  
+  <base href="https://www.zhouyi.tech/archives/completablefuture-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
+  
+  <title>
+  CompletableFuture 使用介绍 · 技术学习之路
+</title>
+
+  
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/completablefuture-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/">
+  
+
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder.min.4aab773750c0433c68c0e2280201a35fa394baf9ef7016cf8f8ae4ba96e597dc.css" integrity="sha256-Sqt3N1DAQzxowOIoAgGjX6OUuvnvcBbPj4rkupbll9w="
+    crossorigin="anonymous" media="screen" />
+  
+
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css" integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU="
+    crossorigin="anonymous" media="screen" />
+  
+  
+
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/main.css" />
+  
+
+  
+  <script src="https://www.zhouyi.tech/js/lazysizes.min.js" async></script>
+  
+  <script src="https://www.zhouyi.tech/js/flying-pages.min.js" async></script>
+  
+
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-32x32.png"
+    sizes="32x32">
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-16x16.png"
+    sizes="16x16">
+
+  <link rel="amphtml" type="text/html" href="https://www.zhouyi.tech/amp/archives/completablefuture-%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D/" title="技术学习之路" />
+  <meta name="generator" content="Hugo 0.75.1" />
+
+  <meta name="baidu-site-verification" content="TiReu51WyJ" />
+
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/scss/tagcloud.css" media="screen" />
+
+</head>
+
+
+
+
+
+
+<body class="colorscheme-auto">
+  <main class="wrapper">
+    <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.zhouyi.tech/">
+      技术学习之路
+    </a>
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/archives/">技术</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/about/">关于</a>
+          </li>
+        
+      
+      
+    </ul>
+  </section>
+</nav>
+
+
+    <div class="content">
+      
+  <section class="container page">
+  <article>
+    <header>
+      <h1>CompletableFuture 使用介绍</h1>
+    </header>
+
+    <p>本文安利一个 Java8 的工具 <code>CompletableFuture</code>，这是 Java8 带来的一个非常好用的用于异步编程的类。还没使用过的小伙伴，赶紧用起来吧。</p>
+<p>本文不介绍它的实现源码，仅介绍它的接口使用，本文也不做它和 RxJava 等其他异步编程框架的对比。</p>
+<h2 id="实例化">实例化</h2>
+<p>首先，不管我们要做什么，我们第一步是需要构造出 CompletableFuture 实例。</p>
+<p>最简单的，我们可以通过构造函数来进行实例化：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; cf = <span style="color:#fff;font-weight:bold">new</span> CompletableFuture&lt;String&gt;();
+</code></pre></div><p>这个实例此时还没有什么用，因为它没有实际的任务，我们选择结束这个任务：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// 可以选择在当前线程结束，也可以在其他线程结束
+</span><span style="color:#007f7f"></span>cf.<span style="color:#007f7f">complete</span>(<span style="color:#0ff;font-weight:bold">&#34;coding...&#34;</span>);
+</code></pre></div><p>因为 CompletableFuture 是一个 Future，我们用 <code>String result = cf.get()</code> 就能获取到结果了。</p>
+<blockquote>
+<p>CompletableFuture 提供了 <code>join()</code> 方法，它的功能和 get() 方法是一样的，都是阻塞获取值，它们的区别在于 join() 抛出的是 unchecked Exception。</p>
+</blockquote>
+<p>上面的代码确实没什么用，下面介绍几个 <strong>static</strong> 方法，它们使用任务来实例化一个 CompletableFuture 实例。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture.<span style="color:#007f7f">runAsync</span>(Runnable runnable);
+CompletableFuture.<span style="color:#007f7f">runAsync</span>(Runnable runnable, Executor executor);
+
+CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(Supplier&lt;U&gt; supplier);
+CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(Supplier&lt;U&gt; supplier, Executor executor)
+</code></pre></div><ul>
+<li>runAsync 方法接收的是 Runnable 的实例，意味着它没有返回值</li>
+<li>supplyAsync 方法对应的是有返回值的情况</li>
+<li>这两个方法的带 <strong>executor</strong> 的变种，表示让任务在指定的线程池中执行，不指定的话，通常任务是在 <code>ForkJoinPool.commonPool()</code> 线程池中执行的。</li>
+</ul>
+<p>好的，现在我们已经有了第一个 CompletableFuture 实例了，我们来看接下来的内容。</p>
+<h2 id="任务之间的顺序执行">任务之间的顺序执行</h2>
+<p>我们先来看执行两个任务的情况，首先执行任务 A，然后将任务 A 的结果传递给任务 B。</p>
+<p>其实这里有很多种情况，任务 A 是否有返回值，任务 B 是否需要任务 A 的返回值，任务 B 是否有返回值，等等。有个明确的就是，肯定是任务 A 执行完后再执行任务 B。</p>
+<p>我们用下面的 6 行代码来说：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture.<span style="color:#007f7f">runAsync</span>(() -&gt; {}).<span style="color:#007f7f">thenRun</span>(() -&gt; {}); 
+CompletableFuture.<span style="color:#007f7f">runAsync</span>(() -&gt; {}).<span style="color:#007f7f">thenAccept</span>(resultA -&gt; {}); 
+CompletableFuture.<span style="color:#007f7f">runAsync</span>(() -&gt; {}).<span style="color:#007f7f">thenApply</span>(resultA -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultB&#34;</span>);
+
+CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>).<span style="color:#007f7f">thenRun</span>(() -&gt; {});
+CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>).<span style="color:#007f7f">thenAccept</span>(resultA -&gt; {});
+CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>).<span style="color:#007f7f">thenApply</span>(resultA -&gt; resultA + <span style="color:#0ff;font-weight:bold">&#34; resultB&#34;</span>);
+</code></pre></div><p>前面 3 行代码演示的是，任务 A 无返回值，所以对应的，第 2 行和第 3 行代码中，resultA 其实是 <code>null</code>。</p>
+<p>第 4 行用的是 <code>thenRun(Runnable runnable)</code>，任务 A 执行完执行 B，并且 B 不需要 A 的结果。</p>
+<p>第 5 行用的是 <code>thenAccept(Consumer action)</code>，任务 A 执行完执行 B，B 需要 A 的结果，但是任务 B 不返回值。</p>
+<p>第 6 行用的是 <code>thenApply(Function fn)</code>，任务 A 执行完执行 B，B 需要 A 的结果，同时任务 B 有返回值。</p>
+<p>这一小节说完了，如果任务 B 后面还有任务 C，往下继续调用 <code>.thenXxx()</code> 即可。</p>
+<h3 id="异常处理">异常处理</h3>
+<p>说到这里，我们顺便来说下 CompletableFuture 的异常处理。这里我们要介绍两个方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> CompletableFuture&lt;T&gt; exceptionally(Function&lt;Throwable, ? <span style="color:#fff;font-weight:bold">extends</span> T&gt; fn);
+<span style="color:#fff;font-weight:bold">public</span> &lt;U&gt; CompletionStage&lt;U&gt; handle(BiFunction&lt;? <span style="color:#fff;font-weight:bold">super</span> T, Throwable, ? <span style="color:#fff;font-weight:bold">extends</span> U&gt; fn);
+</code></pre></div><p>看下面的代码：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>)
+    .<span style="color:#007f7f">thenApply</span>(resultA -&gt; resultA + <span style="color:#0ff;font-weight:bold">&#34; resultB&#34;</span>)
+    .<span style="color:#007f7f">thenApply</span>(resultB -&gt; resultB + <span style="color:#0ff;font-weight:bold">&#34; resultC&#34;</span>)
+    .<span style="color:#007f7f">thenApply</span>(resultC -&gt; resultC + <span style="color:#0ff;font-weight:bold">&#34; resultD&#34;</span>);
+</code></pre></div><p>上面的代码中，任务 A、B、C、D 依次执行，如果任务 A 抛出异常（当然上面的代码不会抛出异常），那么后面的任务都得不到执行。如果任务 C 抛出异常，那么任务 D 得不到执行。</p>
+<p>那么我们怎么处理异常呢？看下面的代码，我们在任务 A 中抛出异常，并对其进行处理：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; future = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> RuntimeException();
+})
+        .<span style="color:#007f7f">exceptionally</span>(ex -&gt; <span style="color:#0ff;font-weight:bold">&#34;errorResultA&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(resultA -&gt; resultA + <span style="color:#0ff;font-weight:bold">&#34; resultB&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(resultB -&gt; resultB + <span style="color:#0ff;font-weight:bold">&#34; resultC&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(resultC -&gt; resultC + <span style="color:#0ff;font-weight:bold">&#34; resultD&#34;</span>);
+
+System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(future.<span style="color:#007f7f">join</span>());
+</code></pre></div><p>上面的代码中，任务 A 抛出异常，然后通过 <code>.exceptionally()</code> 方法处理了异常，并返回新的结果，这个新的结果将传递给任务 B。所以最终的输出结果是：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">errorResultA resultB resultC resultD
+</code></pre></div><p>再看下面的代码，我们来看下另一种处理方式，使用 <code>handle(BiFunction fn)</code> 来处理异常：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; future = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(resultA -&gt; resultA + <span style="color:#0ff;font-weight:bold">&#34; resultB&#34;</span>)
+        <span style="color:#007f7f">// 任务 C 抛出异常
+</span><span style="color:#007f7f"></span>        .<span style="color:#007f7f">thenApply</span>(resultB -&gt; {<span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> RuntimeException();})
+        <span style="color:#007f7f">// 处理任务 C 的返回值或异常
+</span><span style="color:#007f7f"></span>        .<span style="color:#007f7f">handle</span>(<span style="color:#fff;font-weight:bold">new</span> BiFunction&lt;Object, Throwable, Object&gt;() {
+            @Override
+            <span style="color:#fff;font-weight:bold">public</span> Object apply(Object re, Throwable throwable) {
+                <span style="color:#fff;font-weight:bold">if</span> (throwable != <span style="color:#fff;font-weight:bold">null</span>) {
+                    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;errorResultC&#34;</span>;
+                }
+                <span style="color:#fff;font-weight:bold">return</span> re;
+            }
+        })
+        .<span style="color:#007f7f">thenApply</span>(resultC -&gt; resultC + <span style="color:#0ff;font-weight:bold">&#34; resultD&#34;</span>);
+
+System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(future.<span style="color:#007f7f">join</span>());
+</code></pre></div><p>上面的代码使用了 <code>handle</code> 方法来处理<strong>任务 C</strong> 的执行结果，上面的代码中，<code>re</code> 和 <code>throwable</code> 必然有一个是 null，它们分别代表正常的执行结果和异常的情况。</p>
+<blockquote>
+<p>当然，它们也可以都为 null，因为如果它作用的那个 CompletableFuture 实例没有返回值的时候，re 就是 null。</p>
+</blockquote>
+<h2 id="取两个任务的结果">取两个任务的结果</h2>
+<p>上面一节，我们说的是，任务 A 执行完 -&gt; 任务 B 执行完 -&gt; 执行任务 C，它们之间有先后执行关系，因为后面的任务依赖于前面的任务的结果。</p>
+<p>这节我们来看怎么让任务 A 和任务 B 同时执行，然后取它们的结果进行后续操作。这里强调的是任务之间的并行工作，没有先后执行顺序。</p>
+<p>如果使用 Future 的话，我们通常是这么写的：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">ExecutorService executorService = Executors.<span style="color:#007f7f">newCachedThreadPool</span>();
+
+Future&lt;String&gt; futureA = executorService.<span style="color:#007f7f">submit</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>);
+Future&lt;String&gt; futureB = executorService.<span style="color:#007f7f">submit</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultB&#34;</span>);
+
+String resultA = futureA.<span style="color:#007f7f">get</span>();
+String resultB = futureB.<span style="color:#007f7f">get</span>();
+</code></pre></div><p>接下来，我们看看 CompletableFuture 中是怎么写的，看下面的几行代码：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; cfA = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>);
+CompletableFuture&lt;String&gt; cfB = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultB&#34;</span>);
+
+cfA.<span style="color:#007f7f">thenAcceptBoth</span>(cfB, (resultA, resultB) -&gt; {});
+cfA.<span style="color:#007f7f">thenCombine</span>(cfB, (resultA, resultB) -&gt; <span style="color:#0ff;font-weight:bold">&#34;result A + B&#34;</span>);
+cfA.<span style="color:#007f7f">runAfterBoth</span>(cfB, () -&gt; {});
+</code></pre></div><p>第 3 行代码和第 4 行代码演示了怎么使用两个任务的结果 resultA 和 resultB，它们的区别在于，<code>thenAcceptBoth</code> 表示后续的处理不需要返回值，而 <code>thenCombine</code> 表示需要返回值。</p>
+<p>如果你不需要 resultA 和 resultB，那么还可以使用第 5 行描述的 <code>runAfterBoth</code> 方法。</p>
+<blockquote>
+<p>注意，上面的写法和下面的写法是没有区别的：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; cfA = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>);
+
+cfA.<span style="color:#007f7f">thenAcceptBoth</span>(CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultB&#34;</span>),
+     (resultA, resultB) -&gt; {});
+</code></pre></div><p>千万不要以为这种写法任务 A 执行完了以后再执行任务 B。</p>
+</blockquote>
+<h2 id="取多个任务的结果">取多个任务的结果</h2>
+<p>接下来，我们将介绍两个非常简单的静态方法：allOf() 和 anyOf() 方法。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> CompletableFuture&lt;Void&gt; allOf(CompletableFuture&lt;?&gt;... cfs){...}
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> CompletableFuture&lt;Object&gt; anyOf(CompletableFuture&lt;?&gt;... cfs) {...}
+</code></pre></div><p>这两个方法都非常简单，简单介绍一下。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture cfA = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>);
+CompletableFuture cfB = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; 123);
+CompletableFuture cfC = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultC&#34;</span>);
+
+CompletableFuture&lt;Void&gt; future = CompletableFuture.<span style="color:#007f7f">allOf</span>(cfA, cfB, cfC);
+<span style="color:#007f7f">// 所以这里的 join() 将阻塞，直到所有的任务执行结束
+</span><span style="color:#007f7f"></span>future.<span style="color:#007f7f">join</span>();
+</code></pre></div><p>由于 allOf 聚合了多个 CompletableFuture 实例，所以它是没有返回值的。这也是它的一个缺点。</p>
+<p>anyOf 也非常容易理解，就是只要有任意一个 CompletableFuture 实例执行完成就可以了，看下面的例子：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture cfA = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultA&#34;</span>);
+CompletableFuture cfB = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; 123);
+CompletableFuture cfC = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;resultC&#34;</span>);
+
+CompletableFuture&lt;Object&gt; future = CompletableFuture.<span style="color:#007f7f">anyOf</span>(cfA, cfB, cfC);
+Object result = future.<span style="color:#007f7f">join</span>();
+</code></pre></div><p>最后一行的 join() 方法会返回最先完成的任务的结果，所以它的泛型用的是 Object，因为每个任务可能返回的类型不同。</p>
+<h3 id="either-方法">either 方法</h3>
+<p>如果你的 anyOf(&hellip;) 只需要处理两个 CompletableFuture 实例，那么也可以使用 <code>xxxEither()</code> 来处理，</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">cfA.<span style="color:#007f7f">acceptEither</span>(cfB, result -&gt; {});
+cfA.<span style="color:#007f7f">acceptEitherAsync</span>(cfB, result -&gt; {});
+cfA.<span style="color:#007f7f">acceptEitherAsync</span>(cfB, result -&gt; {}, executorService);
+
+cfA.<span style="color:#007f7f">applyToEither</span>(cfB, result -&gt; {<span style="color:#fff;font-weight:bold">return</span> result;});
+cfA.<span style="color:#007f7f">applyToEitherAsync</span>(cfB, result -&gt; {<span style="color:#fff;font-weight:bold">return</span> result;});
+cfA.<span style="color:#007f7f">applyToEitherAsync</span>(cfB, result -&gt; {<span style="color:#fff;font-weight:bold">return</span> result;}, executorService);
+
+cfA.<span style="color:#007f7f">runAfterEither</span>(cfA, () -&gt; {});
+cfA.<span style="color:#007f7f">runAfterEitherAsync</span>(cfB, () -&gt; {});
+cfA.<span style="color:#007f7f">runAfterEitherAsync</span>(cfB, () -&gt; {}, executorService);
+</code></pre></div><p>上面的各个带 <strong>either</strong> 的方法，表达的都是一个意思，指的是两个任务中的其中一个执行完成，就执行指定的操作。它们几组的区别也很明显，分别用于表达是否需要任务 A 和任务 B 的执行结果，是否需要返回值。</p>
+<p>大家可能会对这里的几个变种有盲区，这里顺便说几句。</p>
+<p>1、<code>cfA.acceptEither(cfB, result -&gt; {});</code> 和 <code>cfB.acceptEither(cfA, result -&gt; {});</code> 是一个意思；</p>
+<p>2、第二个变种，加了 <strong>Async</strong> 后缀的方法，代表将需要执行的任务放到 ForkJoinPool.commonPool() 中执行(非完全严谨)；第三个变种很好理解，将任务放到指定线程池中执行；</p>
+<p>3、难道第一个变种是同步的？不是的，而是说，它由任务 A 或任务 B 所在的执行线程来执行，取决于哪个任务先结束。</p>
+<h2 id="compose">compose</h2>
+<p><strong>update on 2019-07-26</strong></p>
+<p>这里我们简单来说说 CompletableFuture 的最后一块拼图，<strong>compose</strong> 方法。</p>
+<p>前面我们介绍了 <code>thenAcceptBoth</code> 和 <code>thenCombine</code> 用于聚合两个任务，其实 compose 也是一样的功能，它们本质上都是为了让多个 CompletableFuture 实例形成一个<strong>链</strong>。</p>
+<p>我们还是用代码来说吧：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; cfA = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;processing a...&#34;</span>);
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;hello&#34;</span>;
+});
+
+CompletableFuture&lt;String&gt; cfB = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;processing b...&#34;</span>);
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34; world&#34;</span>;
+});
+
+CompletableFuture&lt;String&gt; cfC = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;processing c...&#34;</span>);
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;, I&#39;m robot!&#34;</span>;
+});
+</code></pre></div><p>我们示例三个实例的情况，这边不介绍 thenAcceptBoth 了，我们来看下 thenCombine:</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">cfA.<span style="color:#007f7f">thenCombine</span>(cfB, (resultA, resultB) -&gt; {
+    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(resultA + resultB);  <span style="color:#007f7f">// hello world
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> resultA + resultB;
+}).<span style="color:#007f7f">thenCombine</span>(cfC, (resultAB, resultC) -&gt; {
+    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(resultAB + resultC); <span style="color:#007f7f">// hello world, I&#39;m robot!
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> resultAB + resultC;
+});
+</code></pre></div><p>我们先有 cfA，然后和 cfB 组成一个链：<code>cfA -&gt; cfB</code>，然后又组合了 cfC，形成链：<code>cfA -&gt; cfB -&gt; cfC</code>。</p>
+<p>这里有个隐藏的点：cfA、cfB、cfC 它们完全没有数据依赖关系，我们只不过是聚合了它们的结果。</p>
+<p>这下看 compose 就清楚了：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; result = CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    <span style="color:#007f7f">// 第一个实例的结果
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;hello&#34;</span>;
+}).<span style="color:#007f7f">thenCompose</span>(resultA -&gt; CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    <span style="color:#007f7f">// 把上一个实例的结果传递到这里
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> resultA + <span style="color:#0ff;font-weight:bold">&#34; world&#34;</span>;
+})).<span style="color:#007f7f">thenCompose</span>(resultAB -&gt; CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; {
+    <span style="color:#007f7f">// 到这里大家应该很清楚了
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> resultAB + <span style="color:#0ff;font-weight:bold">&#34;, I&#39;m robot&#34;</span>;
+}));
+
+System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(result.<span style="color:#007f7f">join</span>()); <span style="color:#007f7f">// hello world, I&#39;m robot
+</span></code></pre></div><p>前面一个 CompletableFuture 实例的结果可以传递到下一个实例中，这就是 compose 和 combine 的主要区别。</p>
+<p>combine 是把结果进行聚合，但是 compose 更像是把多个已有的 cf 实例组合成一个整体的实例。</p>
+<h2 id="thencompose-和-thenapply-的区别">thenCompose 和 thenApply 的区别</h2>
+<p>评论区有同学关注到了 thenApply 和 thenCompose，这里简单说说。</p>
+<p>我们来看看它们的方法贴到一起对比一下：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> &lt;U&gt; CompletableFuture&lt;U&gt; thenApply(
+    Function&lt;? <span style="color:#fff;font-weight:bold">super</span> T,? <span style="color:#fff;font-weight:bold">extends</span> U&gt; fn) {
+    <span style="color:#fff;font-weight:bold">return</span> uniApplyStage(<span style="color:#fff;font-weight:bold">null</span>, fn);
+}
+<span style="color:#fff;font-weight:bold">public</span> &lt;U&gt; CompletableFuture&lt;U&gt; thenCompose(
+    Function&lt;? <span style="color:#fff;font-weight:bold">super</span> T, ? <span style="color:#fff;font-weight:bold">extends</span> CompletionStage&lt;U&gt;&gt; fn) {
+    <span style="color:#fff;font-weight:bold">return</span> uniComposeStage(<span style="color:#fff;font-weight:bold">null</span>, fn);
+}
+</code></pre></div><p>使用示例：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;String&gt; future1 = CompletableFuture
+        .<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;hello&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(cfA -&gt; cfA + <span style="color:#0ff;font-weight:bold">&#34; world&#34;</span>);
+
+CompletableFuture&lt;String&gt; future2 = CompletableFuture
+        .<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;hello&#34;</span>)
+        .<span style="color:#007f7f">thenCompose</span>(cfA -&gt; CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; cfA + <span style="color:#0ff;font-weight:bold">&#34; world&#34;</span>));
+</code></pre></div><p>它们都需要接收一个 Function，这个函数的主要的区别在于 thenApply 中返回一个具体的值，而 thenCompose 返回一个新的 cf 实例。</p>
+<p>thenApply 类似于 <strong>map</strong> 操作，把 cf 实例的结果加工成另一个值，像 Stream 里面的 map() 方法。它还有一个很重要的特征，这里是<strong>同步</strong>的操作。</p>
+<p>如果你希望执行一个异步的 map 操作，那么就应该使用 thenCompose 了，比如上面的第二个例子。</p>
+<p>我们来继续较真一下，我们可以让 thenApply 的 Function 也返回 CompletableFuture 实例，不就实现了异步的需求：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CompletableFuture&lt;CompletableFuture&lt;String&gt;&gt; future = CompletableFuture
+        .<span style="color:#007f7f">supplyAsync</span>(() -&gt; <span style="color:#0ff;font-weight:bold">&#34;hello&#34;</span>)
+        .<span style="color:#007f7f">thenApply</span>(cfA -&gt; CompletableFuture.<span style="color:#007f7f">supplyAsync</span>(() -&gt; cfA + <span style="color:#0ff;font-weight:bold">&#34; world&#34;</span>));
+</code></pre></div><p>可是，返回值我们可就不太喜欢了。说到这里，大家可能会想到 Stream 里面的 flatMap() 了。</p>
+<h2 id="小结">小结</h2>
+<p>关于 CompletableFuture，本文已经覆盖了绝大多数的接口。如果还有不了解的接口，欢迎各位在留言板中进行交流。</p>
+<p><strong>著作权归原作者所有，<a href="https://www.javadoop.com/post/completable-future">原文链接</a>。</strong></p>
+
+  </article>
+</section>
+
+
+    </div>
+
+    <footer class="footer">
+  <div class="footer-taxonomy">
+    <div style="margin-bottom: 10px;">
+      <a href="https://wiki.bmpi.dev/" rel="nofollow">Wiki</a>
+      ⚔️
+      <a href="https://talk.bmpi.dev/" rel="nofollow">Talk</a>
+      ⚔️
+      <a href="https://www.notion.so/mdw/e0ed086e701a4d0aaa4839d2c7aa62ea" rel="nofollow">Portfolio</a>
+      ⚔️
+      <a href="https://money.i365.tech/">Money</a>
+    </div>
+    <div>
+      <a href= /affiliate >Affiliate</a>
+      ⚡️
+      <a href= /tool >Tool</a>
+      ⚡️
+      <a href= /link >Link</a>
+    </div>
+  </div>
+  <div class="footer-taxonomy">
+    <a href= /tags style="color: #B36D61;">Tags</a>
+    👈
+    <a href= /categories style="color: #FF8C31;">Categories</a>
+    👉
+    <a href= /series style="color: #519A73;">Series</a>
+  </div>
+  <section class="container">
+    
+     © 2019 - 2020
+    
+    
+  </section>
+</footer>
+
+  </main>
+
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154678195-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-154678195-1');
+  </script>
+  
+
+  
+  <script>(function(w,d, s, id) {w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.src = "https://cdn.webpushr.com/app.min.js";fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));webpushr('init','BHuwaXciWicBjh6HQS2tfudv6IYQD11K9u1NUj7nuaEV9NoDT7ns9JjgqyYTflUv-m3TlD7ELY84AHMfgmPXNgU');</script>
+  
+
+</body>
+
+</html>

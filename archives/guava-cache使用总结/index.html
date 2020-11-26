@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="周怡">
+  
+  <meta name="description" content="Guava Cache使用总结">
+  
+  
+  <meta name="keywords" content="guava, cache,, cache,, 缓存">
+  
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Guava Cache使用总结"/>
+<meta name="twitter:description" content="Guava Cache使用总结"/>
+
+  <meta property="og:title" content="Guava Cache使用总结" />
+<meta property="og:description" content="Guava Cache使用总结" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zhouyi.tech/archives/guava-cache%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" />
+<meta property="article:published_time" content="2020-08-17T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-08-17T00:00:00+00:00" /><meta property="og:site_name" content="技术学习之路" />
+
+
+  
+
+
+
+  
+  <base href="https://www.zhouyi.tech/archives/guava-cache%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/">
+  
+  <title>
+  Guava Cache使用总结 · 技术学习之路
+</title>
+
+  
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/guava-cache%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/">
+  
+
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder.min.4aab773750c0433c68c0e2280201a35fa394baf9ef7016cf8f8ae4ba96e597dc.css" integrity="sha256-Sqt3N1DAQzxowOIoAgGjX6OUuvnvcBbPj4rkupbll9w="
+    crossorigin="anonymous" media="screen" />
+  
+
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css" integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU="
+    crossorigin="anonymous" media="screen" />
+  
+  
+
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/main.css" />
+  
+
+  
+  <script src="https://www.zhouyi.tech/js/lazysizes.min.js" async></script>
+  
+  <script src="https://www.zhouyi.tech/js/flying-pages.min.js" async></script>
+  
+
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-32x32.png"
+    sizes="32x32">
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-16x16.png"
+    sizes="16x16">
+
+  <link rel="amphtml" type="text/html" href="https://www.zhouyi.tech/amp/archives/guava-cache%E4%BD%BF%E7%94%A8%E6%80%BB%E7%BB%93/" title="技术学习之路" />
+  <meta name="generator" content="Hugo 0.75.1" />
+
+  <meta name="baidu-site-verification" content="TiReu51WyJ" />
+
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/scss/tagcloud.css" media="screen" />
+
+</head>
+
+
+
+
+
+
+<body class="colorscheme-auto">
+  <main class="wrapper">
+    <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.zhouyi.tech/">
+      技术学习之路
+    </a>
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/archives/">技术</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/about/">关于</a>
+          </li>
+        
+      
+      
+    </ul>
+  </section>
+</nav>
+
+
+    <div class="content">
+      
+  <section class="container page">
+  <article>
+    <header>
+      <h1>Guava Cache使用总结</h1>
+    </header>
+
+    <p>缓存分为本地缓存和远端缓存。常见的远端缓存有Redis，MongoDB；本地缓存一般使用map的方式保存在本地内存中。一般我们在业务中操作缓存，都会操作缓存和数据源两部分。如：put数据时，先插入DB，再删除原来的缓存；ge数据时，先查缓存，命中则返回，没有命中时，需要查询DB，再把查询结果放入缓存中 。如果访问量大，我们还得兼顾本地缓存的线程安全问题。必要的时候也要考虑缓存的回收策略。</p>
+<p>今天说的 Guava Cache 是google guava中的一个内存缓存模块，用于将数据缓存到JVM内存中。他很好的解决了上面提到的几个问题：</p>
+<ul>
+<li>很好的封装了get、put操作，能够集成数据源 ；</li>
+<li>线程安全的缓存，与ConcurrentMap相似，但前者增加了更多的元素失效策略，后者只能显示的移除元素；</li>
+<li>Guava Cache提供了三种基本的缓存回收方式：基于容量回收、定时回收和基于引用回收。定时回收有两种：按照写入时间，最早写入的最先回收；按照访问时间，最早访问的最早回收；</li>
+<li>监控缓存加载/命中情况</li>
+</ul>
+<p>Guava Cache的架构设计灵感ConcurrentHashMap，在简单场景中可以通过HashMap实现简单数据缓存，但如果要实现缓存随时间改变、存储的数据空间可控则缓存工具还是很有必要的。Cache存储的是键值对的集合，不同时是还需要处理缓存过期、动态加载等算法逻辑，需要额外信息实现这些操作，对此根据面向对象的思想，还需要做方法与数据的关联性封装，主要实现的缓存功能有：自动将节点加载至缓存结构中，当缓存的数据超过最大值时，使用LRU算法替换；它具备根据节点上一次被访问或写入时间计算缓存过期机制，缓存的key被封装在WeakReference引用中，缓存的value被封装在WeakReference或SoftReference引用中；还可以统计缓存使用过程中的命中率、异常率和命中率等统计数据。</p>
+<h4 id="构建缓存对象">构建缓存对象</h4>
+<p>我们先看一个示例，再来讲解使用方式：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">package</span> com.rickiyang.learn.cache;
+
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.CacheBuilder;
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.CacheLoader;
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.LoadingCache;
+
+<span style="color:#fff;font-weight:bold">import</span> java.text.SimpleDateFormat;
+<span style="color:#fff;font-weight:bold">import</span> java.util.Date;
+<span style="color:#fff;font-weight:bold">import</span> java.util.Random;
+<span style="color:#fff;font-weight:bold">import</span> java.util.concurrent.TimeUnit;
+
+<span style="color:#007f7f">/**
+</span><span style="color:#007f7f"> * @author: rickiyang
+</span><span style="color:#007f7f"> * @date: 2019/6/12
+</span><span style="color:#007f7f"> * @description:
+</span><span style="color:#007f7f"> */</span>
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">class</span> GuavaCacheService {
+
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> setCache() {
+        LoadingCache&lt;Integer, String&gt; cache = CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+                <span style="color:#007f7f">//设置并发级别为8，并发级别是指可以同时写缓存的线程数
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">concurrencyLevel</span>(8)
+                <span style="color:#007f7f">//设置缓存容器的初始容量为10
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">initialCapacity</span>(10)
+                <span style="color:#007f7f">//设置缓存最大容量为100，超过100之后就会按照LRU最近虽少使用算法来移除缓存项
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">maximumSize</span>(100)
+                <span style="color:#007f7f">//是否需要统计缓存情况,该操作消耗一定的性能,生产环境应该去除
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">recordStats</span>()
+                <span style="color:#007f7f">//设置写缓存后n秒钟过期
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">expireAfterWrite</span>(60, TimeUnit.<span style="color:#007f7f">SECONDS</span>)
+                <span style="color:#007f7f">//设置读写缓存后n秒钟过期,实际很少用到,类似于expireAfterWrite
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">//.expireAfterAccess(17, TimeUnit.SECONDS)
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">//只阻塞当前数据加载线程，其他线程返回旧值
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">//.refreshAfterWrite(13, TimeUnit.SECONDS)
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">//设置缓存的移除通知
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">removalListener</span>(notification -&gt; {
+                    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(notification.<span style="color:#007f7f">getKey</span>() + <span style="color:#0ff;font-weight:bold">&#34; &#34;</span> + notification.<span style="color:#007f7f">getValue</span>() + <span style="color:#0ff;font-weight:bold">&#34; 被移除,原因:&#34;</span> + notification.<span style="color:#007f7f">getCause</span>());
+                })
+                <span style="color:#007f7f">//build方法中可以指定CacheLoader，在缓存不存在时通过CacheLoader的实现自动加载缓存
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">build</span>(<span style="color:#fff;font-weight:bold">new</span> DemoCacheLoader());
+
+        <span style="color:#007f7f">//模拟线程并发
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">new</span> Thread(() -&gt; {
+            <span style="color:#007f7f">//非线程安全的时间格式化工具
+</span><span style="color:#007f7f"></span>            SimpleDateFormat simpleDateFormat = <span style="color:#fff;font-weight:bold">new</span> SimpleDateFormat(<span style="color:#0ff;font-weight:bold">&#34;HH:mm:ss&#34;</span>);
+            <span style="color:#fff;font-weight:bold">try</span> {
+                <span style="color:#fff;font-weight:bold">for</span> (<span style="color:#fff;font-weight:bold">int</span> i = 0; i &lt; 10; i++) {
+                    String value = cache.<span style="color:#007f7f">get</span>(1);
+                    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(Thread.<span style="color:#007f7f">currentThread</span>().<span style="color:#007f7f">getName</span>() + <span style="color:#0ff;font-weight:bold">&#34; &#34;</span> + simpleDateFormat.<span style="color:#007f7f">format</span>(<span style="color:#fff;font-weight:bold">new</span> Date()) + <span style="color:#0ff;font-weight:bold">&#34; &#34;</span> + value);
+                    TimeUnit.<span style="color:#007f7f">SECONDS</span>.<span style="color:#007f7f">sleep</span>(3);
+                }
+            } <span style="color:#fff;font-weight:bold">catch</span> (Exception ignored) {
+            }
+        }).<span style="color:#007f7f">start</span>();
+
+        <span style="color:#fff;font-weight:bold">new</span> Thread(() -&gt; {
+            SimpleDateFormat simpleDateFormat = <span style="color:#fff;font-weight:bold">new</span> SimpleDateFormat(<span style="color:#0ff;font-weight:bold">&#34;HH:mm:ss&#34;</span>);
+            <span style="color:#fff;font-weight:bold">try</span> {
+                <span style="color:#fff;font-weight:bold">for</span> (<span style="color:#fff;font-weight:bold">int</span> i = 0; i &lt; 10; i++) {
+                    String value = cache.<span style="color:#007f7f">get</span>(1);
+                    System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(Thread.<span style="color:#007f7f">currentThread</span>().<span style="color:#007f7f">getName</span>() + <span style="color:#0ff;font-weight:bold">&#34; &#34;</span> + simpleDateFormat.<span style="color:#007f7f">format</span>(<span style="color:#fff;font-weight:bold">new</span> Date()) + <span style="color:#0ff;font-weight:bold">&#34; &#34;</span> + value);
+                    TimeUnit.<span style="color:#007f7f">SECONDS</span>.<span style="color:#007f7f">sleep</span>(5);
+                }
+            } <span style="color:#fff;font-weight:bold">catch</span> (Exception ignored) {
+            }
+        }).<span style="color:#007f7f">start</span>();
+        <span style="color:#007f7f">//缓存状态查看
+</span><span style="color:#007f7f"></span>        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(cache.<span style="color:#007f7f">stats</span>().<span style="color:#007f7f">toString</span>());
+
+    }
+
+    <span style="color:#007f7f">/**
+</span><span style="color:#007f7f">     * 随机缓存加载,实际使用时应实现业务的缓存加载逻辑,例如从数据库获取数据
+</span><span style="color:#007f7f">     */</span>
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">class</span> DemoCacheLoader <span style="color:#fff;font-weight:bold">extends</span> CacheLoader&lt;Integer, String&gt; {
+        @Override
+        <span style="color:#fff;font-weight:bold">public</span> String load(Integer key) <span style="color:#fff;font-weight:bold">throws</span> Exception {
+            System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(Thread.<span style="color:#007f7f">currentThread</span>().<span style="color:#007f7f">getName</span>() + <span style="color:#0ff;font-weight:bold">&#34; 加载数据开始&#34;</span>);
+            TimeUnit.<span style="color:#007f7f">SECONDS</span>.<span style="color:#007f7f">sleep</span>(8);
+            Random random = <span style="color:#fff;font-weight:bold">new</span> Random();
+            System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(Thread.<span style="color:#007f7f">currentThread</span>().<span style="color:#007f7f">getName</span>() + <span style="color:#0ff;font-weight:bold">&#34; 加载数据结束&#34;</span>);
+            <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;value:&#34;</span> + random.<span style="color:#007f7f">nextInt</span>(10000);
+        }
+    }
+}
+</code></pre></div><p>上面一段代码展示了如何使用Cache创建一个缓存对象并使用它。</p>
+<p>LoadingCache是Cache的子接口，相比较于Cache，当从LoadingCache中读取一个指定key的记录时，如果该记录不存在，则LoadingCache可以自动执行加载数据到缓存的操作。</p>
+<p>在调用CacheBuilder的build方法时，必须传递一个CacheLoader类型的参数，CacheLoader的load方法需要我们提供实现。当调用LoadingCache的get方法时，如果缓存不存在对应key的记录，则CacheLoader中的load方法会被自动调用从外存加载数据，load方法的返回值会作为key对应的value存储到LoadingCache中，并从get方法返回。</p>
+<p>当然如果你不想指定重建策略，那么你可以使用无参的build()方法，它将返回Cache类型的构建对象。</p>
+<p>CacheBuilder 是Guava 提供的一个快速构建缓存对象的工具类。CacheBuilder类采用builder设计模式，它的每个方法都返回CacheBuilder本身，直到build方法被调用。 该类中提供了很多的参数设置选项，你可以设置cache的默认大小，并发数，存活时间，过期策略等等。</p>
+<h4 id="可选配置分析">可选配置分析</h4>
+<h5 id="缓存的并发级别">缓存的并发级别</h5>
+<p>Guava提供了设置并发级别的api，使得缓存支持并发的写入和读取。同 ConcurrentHashMap 类似Guava cache的并发也是通过分离锁实现。在一般情况下，将并发级别设置为服务器cpu核心数是一个比较不错的选择。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+		<span style="color:#007f7f">// 设置并发级别为cpu核心数
+</span><span style="color:#007f7f"></span>		.<span style="color:#007f7f">concurrencyLevel</span>(Runtime.<span style="color:#007f7f">getRuntime</span>().<span style="color:#007f7f">availableProcessors</span>()) 
+		.<span style="color:#007f7f">build</span>();
+</code></pre></div><h5 id="缓存的初始容量设置">缓存的初始容量设置</h5>
+<p>我们在构建缓存时可以为缓存设置一个合理大小初始容量，由于Guava的缓存使用了分离锁的机制，扩容的代价非常昂贵。所以合理的初始容量能够减少缓存容器的扩容次数。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+		<span style="color:#007f7f">// 设置初始容量为100
+</span><span style="color:#007f7f"></span>		.<span style="color:#007f7f">initialCapacity</span>(100)
+		.<span style="color:#007f7f">build</span>();
+</code></pre></div><h5 id="设置最大存储">设置最大存储</h5>
+<p>Guava Cache可以在构建缓存对象时指定缓存所能够存储的最大记录数量。当Cache中的记录数量达到最大值后再调用put方法向其中添加对象，Guava会先从当前缓存的对象记录中选择一条删除掉，腾出空间后再将新的对象存储到Cache中。</p>
+<ol>
+<li><strong>基于容量的清除(size-based eviction):</strong> 通过CacheBuilder.maximumSize(long)方法可以设置Cache的最大容量数，当缓存数量达到或接近该最大值时，Cache将清除掉那些最近最少使用的缓存;</li>
+<li><strong>基于权重的清除:</strong> 使用CacheBuilder.weigher(Weigher)指定一个权重函数，并且用CacheBuilder.maximumWeight(long)指定最大总重。比如每一项缓存所占据的内存空间大小都不一样，可以看作它们有不同的“权重”（weights）。</li>
+</ol>
+<h5 id="缓存清除策略">缓存清除策略</h5>
+<h6 id="1-基于存活时间的清除">1. 基于存活时间的清除</h6>
+<ul>
+<li>expireAfterWrite 写缓存后多久过期</li>
+<li>expireAfterAccess 读写缓存后多久过期</li>
+<li>refreshAfterWrite 写入数据后多久过期,只阻塞当前数据加载线程,其他线程返回旧值</li>
+</ul>
+<p>这几个策略时间可以单独设置,也可以组合配置。</p>
+<h6 id="2-上面提到的基于容量的清除">2. 上面提到的基于容量的清除</h6>
+<h6 id="3-显式清除">3. 显式清除</h6>
+<p>任何时候，你都可以显式地清除缓存项，而不是等到它被回收，Cache接口提供了如下API：</p>
+<ol>
+<li>个别清除：Cache.invalidate(key)</li>
+<li>批量清除：Cache.invalidateAll(keys)</li>
+<li>清除所有缓存项：Cache.invalidateAll()</li>
+</ol>
+<h6 id="4-基于引用的清除reference-based-eviction">4. 基于引用的清除（Reference-based Eviction）</h6>
+<p>在构建Cache实例过程中，通过设置使用弱引用的键、或弱引用的值、或软引用的值，从而使JVM在GC时顺带实现缓存的清除，不过一般不轻易使用这个特性。</p>
+<ul>
+<li>CacheBuilder.weakKeys()：使用弱引用存储键。当键没有其它（强或软）引用时，缓存项可以被垃圾回收。因为垃圾回收仅依赖恒等式，使用弱引用键的缓存用而不是equals比较键。</li>
+<li>CacheBuilder.weakValues()：使用弱引用存储值。当值没有其它（强或软）引用时，缓存项可以被垃圾回收。因为垃圾回收仅依赖恒等式，使用弱引用值的缓存用而不是equals比较值。</li>
+<li>CacheBuilder.softValues()：使用软引用存储值。软引用只有在响应内存需要时，才按照全局最近最少使用的顺序回收。考虑到使用软引用的性能影响，我们通常建议使用更有性能预测性的缓存大小限定（见上文，基于容量回收）。使用软引用值的缓存同样用==而不是equals比较值。</li>
+</ul>
+<h5 id="清理什么时候发生">清理什么时候发生</h5>
+<p>也许这个问题有点奇怪，如果设置的存活时间为一分钟，难道不是一分钟后这个key就会立即清除掉吗？我们来分析一下如果要实现这个功能，那Cache中就必须存在线程来进行周期性地检查、清除等工作，很多cache如redis、ehcache都是这样实现的。</p>
+<p>使用CacheBuilder构建的缓存不会”自动”执行清理和回收工作，也不会在某个缓存项过期后马上清理，也没有诸如此类的清理机制。相反，它会在写操作时顺带做少量的维护工作，或者偶尔在读操作时做——如果写操作实在太少的话。</p>
+<p>这样做的原因在于：如果要自动地持续清理缓存，就必须有一个线程，这个线程会和用户操作竞争共享锁。此外，某些环境下线程创建可能受限制，这样CacheBuilder就不可用了。参考如下示例：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">package</span> com.rickiyang.learn.cache;
+
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.Cache;
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.CacheBuilder;
+
+<span style="color:#fff;font-weight:bold">import</span> java.text.SimpleDateFormat;
+<span style="color:#fff;font-weight:bold">import</span> java.util.Date;
+<span style="color:#fff;font-weight:bold">import</span> java.util.concurrent.TimeUnit;
+
+<span style="color:#007f7f">/**
+</span><span style="color:#007f7f"> * @author: rickiyang
+</span><span style="color:#007f7f"> * @date: 2019/6/12
+</span><span style="color:#007f7f"> * @description:
+</span><span style="color:#007f7f"> */</span>
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">class</span> GuavaCacheService {
+
+
+    <span style="color:#fff;font-weight:bold">static</span> Cache&lt;Integer, String&gt; cache = CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+            .<span style="color:#007f7f">expireAfterWrite</span>(5, TimeUnit.<span style="color:#007f7f">SECONDS</span>)
+            .<span style="color:#007f7f">build</span>();
+
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">void</span> main(String[] args) <span style="color:#fff;font-weight:bold">throws</span> Exception {
+        <span style="color:#fff;font-weight:bold">new</span> Thread(() -&gt; {
+            <span style="color:#fff;font-weight:bold">while</span> (<span style="color:#fff;font-weight:bold">true</span>) {
+                SimpleDateFormat sdf = <span style="color:#fff;font-weight:bold">new</span> SimpleDateFormat(<span style="color:#0ff;font-weight:bold">&#34;HH:mm:ss&#34;</span>);
+                System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(sdf.<span style="color:#007f7f">format</span>(<span style="color:#fff;font-weight:bold">new</span> Date()) + <span style="color:#0ff;font-weight:bold">&#34; size: &#34;</span> + cache.<span style="color:#007f7f">size</span>());
+                <span style="color:#fff;font-weight:bold">try</span> {
+                    Thread.<span style="color:#007f7f">sleep</span>(2000);
+                } <span style="color:#fff;font-weight:bold">catch</span> (InterruptedException e) {
+
+                }
+            }
+        }).<span style="color:#007f7f">start</span>();
+        SimpleDateFormat sdf = <span style="color:#fff;font-weight:bold">new</span> SimpleDateFormat(<span style="color:#0ff;font-weight:bold">&#34;HH:mm:ss&#34;</span>);
+        cache.<span style="color:#007f7f">put</span>(1, <span style="color:#0ff;font-weight:bold">&#34;a&#34;</span>);
+        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;写入 key:1 ,value:&#34;</span> + cache.<span style="color:#007f7f">getIfPresent</span>(1));
+        Thread.<span style="color:#007f7f">sleep</span>(10000);
+        cache.<span style="color:#007f7f">put</span>(2, <span style="color:#0ff;font-weight:bold">&#34;b&#34;</span>);
+        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;写入 key:2 ,value:&#34;</span> + cache.<span style="color:#007f7f">getIfPresent</span>(2));
+        Thread.<span style="color:#007f7f">sleep</span>(10000);
+        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(sdf.<span style="color:#007f7f">format</span>(<span style="color:#fff;font-weight:bold">new</span> Date())
+                + <span style="color:#0ff;font-weight:bold">&#34; sleep 10s , key:1 ,value:&#34;</span> + cache.<span style="color:#007f7f">getIfPresent</span>(1));
+        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(sdf.<span style="color:#007f7f">format</span>(<span style="color:#fff;font-weight:bold">new</span> Date())
+                + <span style="color:#0ff;font-weight:bold">&#34; sleep 10s, key:2 ,value:&#34;</span> + cache.<span style="color:#007f7f">getIfPresent</span>(2));
+    }
+}
+
+部分输出结果<span style="color:#f00">：</span>
+23:57:36 size: 0
+写入 key:1 ,value:a
+23:57:38 size: 1
+23:57:40 size: 1
+23:57:42 size: 1
+23:57:44 size: 1
+23:57:46 size: 1
+写入 key:2 ,value:b
+23:57:48 size: 1
+23:57:50 size: 1
+23:57:52 size: 1
+23:57:54 size: 1
+23:57:56 size: 1
+23:57:56 sleep 10s , key:1 ,value:<span style="color:#fff;font-weight:bold">null</span>
+23:57:56 sleep 10s, key:2 ,value:<span style="color:#fff;font-weight:bold">null</span>
+23:57:58 size: 0
+23:58:00 size: 0
+23:58:02 size: 0
+    ...
+    ...
+</code></pre></div><p>上面程序设置了缓存过期时间为5S，每打印一次当前的size需要2S，打印了5次size之后写入key 2，此时的size为1，说明在这个时候才把第一次应该过期的key 1给删除。</p>
+<p><strong>给移除操作添加一个监听器：</strong></p>
+<p>可以为Cache对象添加一个移除监听器，这样当有记录被删除时可以感知到这个事件。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">RemovalListener&lt;String, String&gt; listener = notification -&gt; System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;[&#34;</span> + notification.<span style="color:#007f7f">getKey</span>() + <span style="color:#0ff;font-weight:bold">&#34;:&#34;</span> + notification.<span style="color:#007f7f">getValue</span>() + <span style="color:#0ff;font-weight:bold">&#34;] is removed!&#34;</span>);
+        Cache&lt;String,String&gt; cache = CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+                .<span style="color:#007f7f">maximumSize</span>(5)
+                .<span style="color:#007f7f">removalListener</span>(listener)
+                .<span style="color:#007f7f">build</span>();
+</code></pre></div><p><strong>但是要注意的是：</strong></p>
+<p><strong>默认情况下，监听器方法是在移除缓存时同步调用的。因为缓存的维护和请求响应通常是同时进行的，代价高昂的监听器方法在同步模式下会拖慢正常的缓存请求。在这种情况下，你可以使用<code>RemovalListeners.asynchronous(RemovalListener, Executor)</code>把监听器装饰为异步操作。</strong></p>
+<h5 id="自动加载">自动加载</h5>
+<p>上面我们说过使用get方法的时候如果key不存在你可以使用指定方法去加载这个key。在Cache构建的时候通过指定CacheLoder的方式。如果你没有指定，你也可以在get的时候显式的调用call方法来设置key不存在的补救策略。</p>
+<p>Cache的get方法有两个参数，第一个参数是要从Cache中获取记录的key，第二个记录是一个Callable对象。</p>
+<p>当缓存中已经存在key对应的记录时，get方法直接返回key对应的记录。如果缓存中不包含key对应的记录，Guava会启动一个线程执行Callable对象中的call方法，call方法的返回值会作为key对应的值被存储到缓存中，并且被get方法返回。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">package</span> com.rickiyang.learn.cache;
+
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.Cache;
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.CacheBuilder;
+
+<span style="color:#fff;font-weight:bold">import</span> java.util.concurrent.Callable;
+<span style="color:#fff;font-weight:bold">import</span> java.util.concurrent.ExecutionException;
+
+<span style="color:#007f7f">/**
+</span><span style="color:#007f7f"> * @author: rickiyang
+</span><span style="color:#007f7f"> * @date: 2019/6/12
+</span><span style="color:#007f7f"> * @description:
+</span><span style="color:#007f7f"> */</span>
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">class</span> GuavaCacheService {
+
+
+    <span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> Cache&lt;String, String&gt; cache = CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+            .<span style="color:#007f7f">maximumSize</span>(3)
+            .<span style="color:#007f7f">build</span>();
+
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">void</span> main(String[] args) {
+
+        <span style="color:#fff;font-weight:bold">new</span> Thread(() -&gt; {
+            System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread1&#34;</span>);
+            <span style="color:#fff;font-weight:bold">try</span> {
+                String value = cache.<span style="color:#007f7f">get</span>(<span style="color:#0ff;font-weight:bold">&#34;key&#34;</span>, <span style="color:#fff;font-weight:bold">new</span> Callable&lt;String&gt;() {
+                    <span style="color:#fff;font-weight:bold">public</span> String call() <span style="color:#fff;font-weight:bold">throws</span> Exception {
+                        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread1&#34;</span>); <span style="color:#007f7f">//加载数据线程执行标志
+</span><span style="color:#007f7f"></span>                        Thread.<span style="color:#007f7f">sleep</span>(1000); <span style="color:#007f7f">//模拟加载时间
+</span><span style="color:#007f7f"></span>                        <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;thread1&#34;</span>;
+                    }
+                });
+                System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread1 &#34;</span> + value);
+            } <span style="color:#fff;font-weight:bold">catch</span> (ExecutionException e) {
+                e.<span style="color:#007f7f">printStackTrace</span>();
+            }
+        }).<span style="color:#007f7f">start</span>();
+        <span style="color:#fff;font-weight:bold">new</span> Thread(() -&gt; {
+            System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread2&#34;</span>);
+            <span style="color:#fff;font-weight:bold">try</span> {
+                String value = cache.<span style="color:#007f7f">get</span>(<span style="color:#0ff;font-weight:bold">&#34;key&#34;</span>, <span style="color:#fff;font-weight:bold">new</span> Callable&lt;String&gt;() {
+                    <span style="color:#fff;font-weight:bold">public</span> String call() <span style="color:#fff;font-weight:bold">throws</span> Exception {
+                        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread2&#34;</span>); <span style="color:#007f7f">//加载数据线程执行标志
+</span><span style="color:#007f7f"></span>                        Thread.<span style="color:#007f7f">sleep</span>(1000); <span style="color:#007f7f">//模拟加载时间
+</span><span style="color:#007f7f"></span>                        <span style="color:#fff;font-weight:bold">return</span> <span style="color:#0ff;font-weight:bold">&#34;thread2&#34;</span>;
+                    }
+                });
+                System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(<span style="color:#0ff;font-weight:bold">&#34;thread2 &#34;</span> + value);
+            } <span style="color:#fff;font-weight:bold">catch</span> (ExecutionException e) {
+                e.<span style="color:#007f7f">printStackTrace</span>();
+            }
+        }).<span style="color:#007f7f">start</span>();
+    }
+
+}
+
+输出结果为<span style="color:#f00">：</span>
+thread1
+thread2
+thread2
+thread1 thread2
+thread2 thread2
+</code></pre></div><p>可以看到输出结果：两个线程都启动，输出thread1，thread2，接着又输出了thread2，说明进入了thread2的call方法了，此时thread1正在阻塞，等待key被设置。然后thread1 得到了value是thread2，thread2的结果自然也是thread2。</p>
+<p>这段代码中有两个线程共享同一个Cache对象，两个线程同时调用get方法获取同一个key对应的记录。由于key对应的记录不存在，所以两个线程都在get方法处阻塞。此处在call方法中调用Thread.sleep(1000)模拟程序从外存加载数据的时间消耗。</p>
+<p>从结果中可以看出，虽然是两个线程同时调用get方法，但只有一个get方法中的Callable会被执行(没有打印出load2)。Guava可以保证当有多个线程同时访问Cache中的一个key时，如果key对应的记录不存在，Guava只会启动一个线程执行get方法中Callable参数对应的任务加载数据存到缓存。当加载完数据后，任何线程中的get方法都会获取到key对应的值。</p>
+<h5 id="统计信息">统计信息</h5>
+<p>可以对Cache的命中率、加载数据时间等信息进行统计。在构建Cache对象时，可以通过CacheBuilder的recordStats方法开启统计信息的开关。开关开启后Cache会自动对缓存的各种操作进行统计，调用Cache的stats方法可以查看统计后的信息。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">package</span> com.rickiyang.learn.cache;
+
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.Cache;
+<span style="color:#fff;font-weight:bold">import</span> com.google.common.cache.CacheBuilder;
+
+<span style="color:#007f7f">/**
+</span><span style="color:#007f7f"> * @author: rickiyang
+</span><span style="color:#007f7f"> * @date: 2019/6/12
+</span><span style="color:#007f7f"> * @description:
+</span><span style="color:#007f7f"> */</span>
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">class</span> GuavaCacheService {
+
+
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">void</span> main(String[] args) {
+        Cache&lt;String, String&gt; cache = CacheBuilder.<span style="color:#007f7f">newBuilder</span>()
+                .<span style="color:#007f7f">maximumSize</span>(3)
+                .<span style="color:#007f7f">recordStats</span>() <span style="color:#007f7f">//开启统计信息开关
+</span><span style="color:#007f7f"></span>                .<span style="color:#007f7f">build</span>();
+        cache.<span style="color:#007f7f">put</span>(<span style="color:#0ff;font-weight:bold">&#34;1&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;v1&#34;</span>);
+        cache.<span style="color:#007f7f">put</span>(<span style="color:#0ff;font-weight:bold">&#34;2&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;v2&#34;</span>);
+        cache.<span style="color:#007f7f">put</span>(<span style="color:#0ff;font-weight:bold">&#34;3&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;v3&#34;</span>);
+        cache.<span style="color:#007f7f">put</span>(<span style="color:#0ff;font-weight:bold">&#34;4&#34;</span>, <span style="color:#0ff;font-weight:bold">&#34;v4&#34;</span>);
+
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;1&#34;</span>);
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;2&#34;</span>);
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;3&#34;</span>);
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;4&#34;</span>);
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;5&#34;</span>);
+        cache.<span style="color:#007f7f">getIfPresent</span>(<span style="color:#0ff;font-weight:bold">&#34;6&#34;</span>);
+
+        System.<span style="color:#007f7f">out</span>.<span style="color:#007f7f">println</span>(cache.<span style="color:#007f7f">stats</span>()); <span style="color:#007f7f">//获取统计信息
+</span><span style="color:#007f7f"></span>    }
+
+}
+
+输出<span style="color:#f00">：</span>
+CacheStats{hitCount=3, missCount=3, loadSuccessCount=0, loadExceptionCount=0, totalLoadTime=0, evictionCount=1}
+</code></pre></div><p>（全文完）</p>
+<p><strong>著作权归原作者所有，<a href="https://www.cnblogs.com/rickiyang/p/11074159.html#299371220">原文链接</a>。</strong></p>
+
+  </article>
+</section>
+
+
+    </div>
+
+    <footer class="footer">
+  <div class="footer-taxonomy">
+    <div style="margin-bottom: 10px;">
+      <a href="https://wiki.bmpi.dev/" rel="nofollow">Wiki</a>
+      ⚔️
+      <a href="https://talk.bmpi.dev/" rel="nofollow">Talk</a>
+      ⚔️
+      <a href="https://www.notion.so/mdw/e0ed086e701a4d0aaa4839d2c7aa62ea" rel="nofollow">Portfolio</a>
+      ⚔️
+      <a href="https://money.i365.tech/">Money</a>
+    </div>
+    <div>
+      <a href= /affiliate >Affiliate</a>
+      ⚡️
+      <a href= /tool >Tool</a>
+      ⚡️
+      <a href= /link >Link</a>
+    </div>
+  </div>
+  <div class="footer-taxonomy">
+    <a href= /tags style="color: #B36D61;">Tags</a>
+    👈
+    <a href= /categories style="color: #FF8C31;">Categories</a>
+    👉
+    <a href= /series style="color: #519A73;">Series</a>
+  </div>
+  <section class="container">
+    
+     © 2019 - 2020
+    
+    
+  </section>
+</footer>
+
+  </main>
+
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154678195-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-154678195-1');
+  </script>
+  
+
+  
+  <script>(function(w,d, s, id) {w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.src = "https://cdn.webpushr.com/app.min.js";fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));webpushr('init','BHuwaXciWicBjh6HQS2tfudv6IYQD11K9u1NUj7nuaEV9NoDT7ns9JjgqyYTflUv-m3TlD7ELY84AHMfgmPXNgU');</script>
+  
+
+</body>
+
+</html>

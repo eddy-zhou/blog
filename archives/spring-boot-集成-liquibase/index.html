@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="周怡">
+  
+  <meta name="description" content="Spring Boot 集成 Liquibase">
+  
+  
+  <meta name="keywords" content="springboot,, liquibase">
+  
+
+  <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Spring Boot 集成 Liquibase"/>
+<meta name="twitter:description" content="Spring Boot 集成 Liquibase"/>
+
+  <meta property="og:title" content="Spring Boot 集成 Liquibase" />
+<meta property="og:description" content="Spring Boot 集成 Liquibase" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.zhouyi.tech/archives/spring-boot-%E9%9B%86%E6%88%90-liquibase/" />
+<meta property="article:published_time" content="2020-08-24T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-08-24T00:00:00+00:00" /><meta property="og:site_name" content="技术学习之路" />
+
+
+  
+
+
+
+  
+  <base href="https://www.zhouyi.tech/archives/spring-boot-%E9%9B%86%E6%88%90-liquibase/">
+  
+  <title>
+  Spring Boot 集成 Liquibase · 技术学习之路
+</title>
+
+  
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/spring-boot-%E9%9B%86%E6%88%90-liquibase/">
+  
+
+  <link href="https://fonts.googleapis.com/css?family=Lato:400,700%7CMerriweather:300,700%7CSource+Code+Pro:400,700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css"
+    integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder.min.4aab773750c0433c68c0e2280201a35fa394baf9ef7016cf8f8ae4ba96e597dc.css" integrity="sha256-Sqt3N1DAQzxowOIoAgGjX6OUuvnvcBbPj4rkupbll9w="
+    crossorigin="anonymous" media="screen" />
+  
+
+  
+
+  
+  
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/coder-dark.min.83a2010dac9f59f943b3004cd6c4f230507ad036da635d3621401d42ec4e2835.css" integrity="sha256-g6IBDayfWflDswBM1sTyMFB60DbaY102IUAdQuxOKDU="
+    crossorigin="anonymous" media="screen" />
+  
+  
+
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/css/main.css" />
+  
+
+  
+  <script src="https://www.zhouyi.tech/js/lazysizes.min.js" async></script>
+  
+  <script src="https://www.zhouyi.tech/js/flying-pages.min.js" async></script>
+  
+
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-32x32.png"
+    sizes="32x32">
+  <link rel="icon" type="image/png" href="https://www.zhouyi.tech/images/f/favicon-16x16.png"
+    sizes="16x16">
+
+  <link rel="amphtml" type="text/html" href="https://www.zhouyi.tech/amp/archives/spring-boot-%E9%9B%86%E6%88%90-liquibase/" title="技术学习之路" />
+  <meta name="generator" content="Hugo 0.75.1" />
+
+  <meta name="baidu-site-verification" content="TiReu51WyJ" />
+
+  
+  
+  <link rel="stylesheet" href="https://www.zhouyi.tech/scss/tagcloud.css" media="screen" />
+
+</head>
+
+
+
+
+
+
+<body class="colorscheme-auto">
+  <main class="wrapper">
+    <nav class="navigation">
+  <section class="container">
+    <a class="navigation-title" href="https://www.zhouyi.tech/">
+      技术学习之路
+    </a>
+    <input type="checkbox" id="menu-toggle" />
+    <label class="menu-button float-right" for="menu-toggle"><i class="fas fa-bars"></i></label>
+    <ul class="navigation-list">
+      
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/archives/">技术</a>
+          </li>
+        
+          <li class="navigation-item">
+            <a class="navigation-link" href="https://www.zhouyi.tech/about/">关于</a>
+          </li>
+        
+      
+      
+    </ul>
+  </section>
+</nav>
+
+
+    <div class="content">
+      
+  <section class="container page">
+  <article>
+    <header>
+      <h1>Spring Boot 集成 Liquibase</h1>
+    </header>
+
+    <p><code>Liquibase</code> 是一个用于跟踪、管理和应用数据库变化的开源的数据库重构工具。它将所有数据库的变化（包括结构和数据）都保存在 <code>changelog </code>文件中，便于版本控制，它的目标是提供一种数据库类型无关的解决方案，通过执行 schema 类型的文件来达到迁移。</p>
+<h3 id="liquibase-特性">Liquibase 特性</h3>
+<p>Liquibase 具备如下特性：</p>
+<ul>
+<li>支持几乎所有主流的数据库，如 MySQL, PostgreSQL, Oracle, Sql Server, DB2 等；</li>
+<li>支持多开发者的协作维护；</li>
+<li>日志文件支持多种格式，如 XML, YAML, JSON, SQL等；</li>
+<li>支持上下文相关逻辑</li>
+<li>生成数据库变更文档</li>
+<li>支持多种运行方式，如命令行、Spring 集成、Maven 插件、Gradle 插件等。</li>
+</ul>
+<p>更多详情介绍，请查阅 <a href="https://www.liquibase.org/documentation/index.html">Liquibase 官方文档</a></p>
+<h3 id="spring-boot-集成-liquibase">Spring Boot 集成 Liquibase</h3>
+<h4 id="添加依赖">添加依赖</h4>
+<p>因为 Spring Boot 已经内置支持整合 Liquibase，我们只需要在项目工程中引入 Liquibase 的依赖进行配置即可。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="font-weight:bold">&lt;dependency&gt;</span>
+    <span style="font-weight:bold">&lt;groupId&gt;</span>org.liquibase<span style="font-weight:bold">&lt;/groupId&gt;</span>
+    <span style="font-weight:bold">&lt;artifactId&gt;</span>liquibase-core<span style="font-weight:bold">&lt;/artifactId&gt;</span>
+    <span style="font-weight:bold">&lt;version&gt;</span>3.6.3<span style="font-weight:bold">&lt;/version&gt;</span>
+<span style="font-weight:bold">&lt;/dependency&gt;</span>
+</code></pre></div><h4 id="配置-application-文件">配置 application 文件</h4>
+<p>在 classpath 中配置 application.properties 或 application.yml 文件，</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 启用liquibase
+liquibase.enabled=true
+# 存储变化的文件（changelog）位置
+liquibase.change-log=classpath:sample_change.sql
+# 检查存储变化的文件是否存在
+liquibase.check-change-log-location=true
+# 分环境执行，若在 changelog 文件中设置了对应 context 属性，则只会执行与 dev 对应值的 changeset
+liquibase.contexts=dev
+# 执行前首先删除数据库，默认 false。若设置为 true，则执行变更前，会先删除目标数据库，请谨慎
+liquibase.dropFirst=false
+# 执行更新时将回滚 SQL 写入的文件路径
+liquibase.rollback-file=
+# 如果使用工程已配置的 datasource 数据源，则以下三个数据库连接参数可不配置
+## 访问数据库的连接地址
+liquibase.url=jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&amp;characterEncoding=utf-8
+# 访问数据库的用户名
+liquibase.user=test
+# 访问数据库的密码
+liquibase.password=test
+
+</code></pre></div><blockquote>
+<p>注意：如果使用工程已配置的 <code>datasource</code> 数据源，则 <code>liquibase.url、liquibase.user</code> 和 <code>liquibase.password</code>这个三个参数可不配置，目标数据源即为工程已配置好的数据源。因为 Spring 会自动为 liquibase 获取可用的数据源，详情可查看这个类：<code>org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration</code>。</p>
+</blockquote>
+<h4 id="编写存储变更的-changelog-文件">编写存储变更的 changelog 文件</h4>
+<p>目前 Liquibase 支持 XML、YAML、JSON 和 SQL 格式四种格式的 changelog 文件。为了方便和直观，下面以基于 SQL 格式编写 changelog 文件：sample_change.sql</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--liquibase formatted <span style="color:#fff;font-weight:bold">sql</span>
+
+--changeset zhouyi:<span style="color:#ff0;font-weight:bold">1</span>
+<span style="color:#007f7f">-- 创建用户表
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">TABLE</span> `<span style="color:#fff;font-weight:bold">user</span>` (
+  `id` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">20</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL <span style="color:#fff;font-weight:bold">AUTO_INCREMENT</span>,
+  `name` <span style="color:#fff;font-weight:bold">varchar</span>(<span style="color:#ff0;font-weight:bold">50</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  `age` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">10</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  <span style="color:#fff;font-weight:bold">PRIMARY</span> <span style="color:#fff;font-weight:bold">KEY</span> (`id`)
+) <span style="color:#fff;font-weight:bold">ENGINE</span>=InnoDB <span style="color:#fff;font-weight:bold">DEFAULT</span> <span style="color:#fff;font-weight:bold">CHARSET</span>=utf8;
+
+--rollback <span style="color:#fff;font-weight:bold">drop</span> <span style="color:#fff;font-weight:bold">table</span> <span style="color:#fff;font-weight:bold">user</span>;
+
+--changeset zhouyi:<span style="color:#ff0;font-weight:bold">2</span>
+<span style="color:#fff;font-weight:bold">insert</span> <span style="color:#fff;font-weight:bold">into</span> <span style="color:#fff;font-weight:bold">user</span>(id, name, age) <span style="color:#fff;font-weight:bold">values</span>(<span style="color:#ff0;font-weight:bold">1</span>,<span style="color:#0ff;font-weight:bold">&#39;张三&#39;</span>,<span style="color:#ff0;font-weight:bold">29</span>);
+<span style="color:#fff;font-weight:bold">insert</span> <span style="color:#fff;font-weight:bold">into</span> <span style="color:#fff;font-weight:bold">user</span>(id, name, age) <span style="color:#fff;font-weight:bold">values</span>(<span style="color:#ff0;font-weight:bold">2</span>,<span style="color:#0ff;font-weight:bold">&#39;李四&#39;</span>,<span style="color:#ff0;font-weight:bold">20</span>);
+</code></pre></div><p>启动 Spring Boot 应用后，可以从日志看到输出：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">2019-03-27 13:13:16.439 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - DELETE FROM test.DATABASECHANGELOGLOCK
+2019-03-27 13:13:16.442 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - INSERT INTO test.DATABASECHANGELOGLOCK (ID, `LOCKED`) VALUES (1, 0)
+2019-03-27 13:13:16.506 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT `LOCKED` FROM test.DATABASECHANGELOGLOCK WHERE ID=1
+2019-03-27 13:13:16.586 [main] [] INFO  liquibase.lockservice.StandardLockService.info:42 - Successfully acquired change log lock
+2019-03-27 13:13:16.697 [main] [] INFO  liquibase.changelog.StandardChangeLogHistoryService.info:42 - Creating database history table with name: test.DATABASECHANGELOG
+2019-03-27 13:13:16.700 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - CREATE TABLE test.DATABASECHANGELOG (ID VARCHAR(255) NOT NULL, AUTHOR VARCHAR(255) NOT NULL, FILENAME VARCHAR(255) NOT NULL, DATEEXECUTED datetime NOT NULL, ORDEREXECUTED INT NOT NULL, EXECTYPE VARCHAR(10) NOT NULL, MD5SUM VARCHAR(35) NULL, `DESCRIPTION` VARCHAR(255) NULL, COMMENTS VARCHAR(255) NULL, TAG VARCHAR(255) NULL, LIQUIBASE VARCHAR(20) NULL, CONTEXTS VARCHAR(255) NULL, LABELS VARCHAR(255) NULL, DEPLOYMENT_ID VARCHAR(10) NULL)
+2019-03-27 13:13:17.570 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT COUNT(*) FROM test.DATABASECHANGELOG
+2019-03-27 13:13:17.575 [main] [] INFO  liquibase.changelog.StandardChangeLogHistoryService.info:42 - Reading from test.DATABASECHANGELOG
+2019-03-27 13:13:17.579 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT * FROM test.DATABASECHANGELOG ORDER BY DATEEXECUTED ASC, ORDEREXECUTED ASC
+2019-03-27 13:13:17.585 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT COUNT(*) FROM test.DATABASECHANGELOGLOCK
+2019-03-27 13:13:17.678 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - CREATE TABLE `user` (
+  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `age` int(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+2019-03-27 13:13:17.935 [main] [] INFO  liquibase.changelog.ChangeSet.info:42 - Custom SQL executed
+2019-03-27 13:13:17.937 [main] [] INFO  liquibase.changelog.ChangeSet.info:42 - ChangeSet classpath:sample_change.sql::1::zhouyi ran successfully in 297ms
+2019-03-27 13:13:17.938 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT MAX(ORDEREXECUTED) FROM test.DATABASECHANGELOG
+
+</code></pre></div><p>从数据库中可以看到变化，首次运行新增了 3 张表，
+<img src="https://www.zhouyi.tech/upload/2020/06/table-52f4112c5d114d94a11c76e50e512f67.jpg" alt="table"></p>
+<p>其中<code>DATABASECHANGELOG</code> 和 <code>DATABASECHANGELOGLOCK</code> 表是 Liquibase 自动生成的，而 <code>user</code> 表是执行我们编写的  <code>changeset</code>变更集后生成的，并且也已经执行了第 2 个变更集，插入了两条数据。</p>
+<h3 id="sql-格式的-changelogs-文件">SQL 格式的 changelogs 文件</h3>
+<p>SQL 格式的 <code>changelog</code> 文件使用 SQL 注释作为元数据，为确保这个文件被 Liquibase 识别为 <code>changelog </code>文件，，SQL 文件必须以以下注释开头：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--liquibase formatted <span style="color:#fff;font-weight:bold">sql</span>
+</code></pre></div><h4 id="changeset-变更">changeset 变更</h4>
+<p>SQL 格式的 <code>changelog</code> 文件中在变更的 SQL 前需要加上以下注释，表示为一个 <code>changeset </code>变更集：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--changeset author:id attribute1:value1 attribute2:value2 [...]
+</code></pre></div><p>在之前的 <code>sample_change.sql</code> 文件中编写了两条 <code>changeset</code> (变更集)，</p>
+<p>变更集 <code>changeset</code> 是通过 <code>author + id</code> 的方式来保证唯一性，如以上 <code>zhouyi:1</code> 和  <code>zhouyi:2</code> 两条表更集。</p>
+<p>变更集提供以下属性：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stripComments</td>
+<td>设置为 true 可在执行之前删除 SQL 中的任何注释, 否则为 false。如果未设置, 则默认值为 true</td>
+</tr>
+<tr>
+<td>splitStatements</td>
+<td></td>
+</tr>
+<tr>
+<td>endDelimiter</td>
+<td>应用于语句结尾的分隔符。默认为“；”，也可以设置为“”</td>
+</tr>
+<tr>
+<td>runAlways</td>
+<td>在每次运行时执行变更集, 即使之前已运行</td>
+</tr>
+<tr>
+<td>runOnChange</td>
+<td>在首次看到更改并每次更改变更集时执行更改</td>
+</tr>
+<tr>
+<td>context</td>
+<td>如果在运行时传递了特定上下文, 则执行更改。任何字符串都可以用于上下文名称, 并且大小写不敏感。</td>
+</tr>
+<tr>
+<td>logicalFilePath</td>
+<td>用于在创建变更集的唯一标识符时重写文件名和路径。移动或重命名更改日志时所必需。</td>
+</tr>
+<tr>
+<td>labels</td>
+<td>标签是对变更集进行分类的通用方法集类似上下文, 但工作方式正好相反。如果不是在运行时定义一组上下文, 然后在变更集中定义一个匹配表达式, 而是在上下文中定义一组标签, 在运行时定义一个匹配表达式。</td>
+</tr>
+<tr>
+<td>runInTransaction</td>
+<td>变更集是否应作为单个事务运行 (如果可能)，默认值为 true。请注意此属性，如果设置为 false, 并且通过运行包含多个语句的变更集部分发生错误, 则 liquibase 数据库的 <code>databasechangeloglock</code> 表将处于无效状态</td>
+</tr>
+<tr>
+<td>failOnError</td>
+<td>如果在执行变更集时发生错误, 迁移是否应返回失败</td>
+</tr>
+<tr>
+<td>dbms</td>
+<td>要用于该变更集的数据库的类型。当迁移步骤运行时, 它将根据此属性检查数据库类型，如：oracle、mysql</td>
+</tr>
+<tr>
+<td>logicalFilePath</td>
+<td>在数据库 <code>databasechangeloglock</code> 中设置逻辑文件路径, 而不是在执行 liquibase 的 sql 物理文件位置。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="前置条件">前置条件</h4>
+<p>可以为每个变更集指定先决条件。目前, 仅支持 SQL 检查前置条件。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--preconditions onFail:HALT onError:HALT
+--precondition-<span style="color:#fff;font-weight:bold">sql</span>-<span style="color:#fff;font-weight:bold">check</span> expectedResult:<span style="color:#ff0;font-weight:bold">0</span> <span style="color:#fff;font-weight:bold">SELECT</span> COUNT(*) <span style="color:#fff;font-weight:bold">FROM</span> my_table
+</code></pre></div><h4 id="回滚操作">回滚操作</h4>
+<p>变更集可能包括回滚变更集时要应用的语句。回滚声明也是使用表注释。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--rollback <span style="color:#fff;font-weight:bold">SQL</span> STATEMENT
+</code></pre></div><p>例如在前面编写的 changelog 文件中的第一个 changeset：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--changeset zhouyi:<span style="color:#ff0;font-weight:bold">1</span>
+<span style="color:#007f7f">-- 创建用户表
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">TABLE</span> `<span style="color:#fff;font-weight:bold">user</span>` (
+  `id` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">20</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL <span style="color:#fff;font-weight:bold">AUTO_INCREMENT</span>,
+  `name` <span style="color:#fff;font-weight:bold">varchar</span>(<span style="color:#ff0;font-weight:bold">50</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  `age` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">10</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  <span style="color:#fff;font-weight:bold">PRIMARY</span> <span style="color:#fff;font-weight:bold">KEY</span> (`id`)
+) <span style="color:#fff;font-weight:bold">ENGINE</span>=InnoDB <span style="color:#fff;font-weight:bold">DEFAULT</span> <span style="color:#fff;font-weight:bold">CHARSET</span>=utf8;
+
+--rollback <span style="color:#fff;font-weight:bold">drop</span> <span style="color:#fff;font-weight:bold">table</span> <span style="color:#fff;font-weight:bold">user</span>;
+</code></pre></div><p>首先的变更的 SQL 含义是新建一个 <code>user</code> 表，回滚的 SQL 则表示删除新建的 <code>user</code> 表。</p>
+<h3 id="liquibase-最佳实践">Liquibase 最佳实践</h3>
+<p>下面介绍可应用于项目的一些最佳实践。</p>
+<h4 id="一个变更集只设置一次更改">一个变更集只设置一次更改</h4>
+<p>尽可能地避免对一个变更集进行多次更改，以避免自动提交 SQL 语句而可能使数据库处于非预期状态。
+如 <code>--changeset zhouyi:1</code> 变更集，只新建一张 <code>user</code> 表，后面不再修改该变更集，如果需要变更，可以新增一条变更集。</p>
+<h4 id="变更集的-id">变更集的 ID</h4>
+<p>选择适合您的方法。有的人是使用从 1 开始的序列号, 并且在更改日志中是唯一的，也有些人选择一个描述性的名称（例如：<code>new-address-table</code>）</p>
+<h4 id="总是考虑回滚">总是考虑回滚</h4>
+<p>尽量尝试以可以回滚的方式编写变更集，如 <code>--changeset zhouyi:1 </code> 变更集新建一个 <code>user</code> 表，在后面跟上回滚的 SQL， <code>--rollback drop table user;</code></p>
+<h4 id="为变更集添加注释">为变更集添加注释</h4>
+<p>尽量为每一个变更集条目增加注释，如  <code>-- 创建用户表</code></p>
+<h4 id="开发人员使用流程">开发人员使用流程</h4>
+<ul>
+<li>使用您最喜欢的 IDE 或编辑器, 创建一个包含更改的新本地更改集；</li>
+<li>运行 Liquibase 以执行新的变更集 (这将测试 SQL 代码)；</li>
+<li>在应用程序代码中执行相应的更改 (例如, Java 代码)；</li>
+<li>测试验证新的应用程序代码以及数据库更改；</li>
+<li>提交变更集和应用程序代码。</li>
+</ul>
+
+  </article>
+</section>
+
+
+    </div>
+
+    <footer class="footer">
+  <div class="footer-taxonomy">
+    <div style="margin-bottom: 10px;">
+      <a href="https://wiki.bmpi.dev/" rel="nofollow">Wiki</a>
+      ⚔️
+      <a href="https://talk.bmpi.dev/" rel="nofollow">Talk</a>
+      ⚔️
+      <a href="https://www.notion.so/mdw/e0ed086e701a4d0aaa4839d2c7aa62ea" rel="nofollow">Portfolio</a>
+      ⚔️
+      <a href="https://money.i365.tech/">Money</a>
+    </div>
+    <div>
+      <a href= /affiliate >Affiliate</a>
+      ⚡️
+      <a href= /tool >Tool</a>
+      ⚡️
+      <a href= /link >Link</a>
+    </div>
+  </div>
+  <div class="footer-taxonomy">
+    <a href= /tags style="color: #B36D61;">Tags</a>
+    👈
+    <a href= /categories style="color: #FF8C31;">Categories</a>
+    👉
+    <a href= /series style="color: #519A73;">Series</a>
+  </div>
+  <section class="container">
+    
+     © 2019 - 2020
+    
+    
+  </section>
+</footer>
+
+  </main>
+
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-154678195-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-154678195-1');
+  </script>
+  
+
+  
+  <script>(function(w,d, s, id) {w.webpushr=w.webpushr||function(){(w.webpushr.q=w.webpushr.q||[]).push(arguments)};var js, fjs = d.getElementsByTagName(s)[0];js = d.createElement(s); js.id = id;js.src = "https://cdn.webpushr.com/app.min.js";fjs.parentNode.appendChild(js);}(window,document, 'script', 'webpushr-jssdk'));webpushr('init','BHuwaXciWicBjh6HQS2tfudv6IYQD11K9u1NUj7nuaEV9NoDT7ns9JjgqyYTflUv-m3TlD7ELY84AHMfgmPXNgU');</script>
+  
+
+</body>
+
+</html>

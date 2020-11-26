@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+
+
+
+
+<html amp lang="zh-cn" class="no-js">
+<head>
+  <title>深度解读 java 线程池设计思想及源码实现</title>
+  <meta charset="utf-8">
+
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script><script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+
+
+
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/%E6%B7%B1%E5%BA%A6%E8%A7%A3%E8%AF%BB-java-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E5%8F%8A%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0/">
+
+  <link rel="icon" href="https://www.zhouyi.tech/favicon.png" type="image/png" sizes="144x144">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+
+  <meta name="theme-color" content="#000000" />
+
+  
+<script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "技术学习之路",
+    
+    "url": "https:\/\/www.zhouyi.tech"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/www.zhouyi.tech"
+  
+  
+  
+  
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position":  1 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  3 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/",
+          "name": "amp"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  4 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/",
+          "name": "archives"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  5 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/%E6%B7%B1%E5%BA%A6%E8%A7%A3%E8%AF%BB-java-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E5%8F%8A%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0\/",
+          "name": "%E6%B7%B1%E5%BA%A6%E8%A7%A3%E8%AF%BB-java-%E7%BA%BF%E7%A8%8B%E6%B1%A0%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3%E5%8F%8A%E6%BA%90%E7%A0%81%E5%AE%9E%E7%8E%B0"
+        }
+    }]
+}
+</script>
+
+
+
+
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <style amp-custom>
+        /**
+* stylesheet.html
+* ---------------
+* This is the stylesheet that gets injected as a fallback if no layouts/partials/stylesheet.html file is available
+* in your project file.
+*
+* For further details, please have a look at:
+* https://gohugo-amp.gohugohq.com/install/
+*
+**/
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px
+dotted}b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em
+0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em
+40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html
+input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html
+input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px
+solid silver;margin:0 2px;padding:.35em .625em
+.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}td,th{padding:0}*{box-sizing:border-box}button,input,select,textarea{font:13px/1.4
+Helvetica,arial,freesans,clean,sans-serif}a{color:#4183c4;text-decoration:none}a:active,a:focus,a:hover{text-decoration:underline}.rule,hr{height:0;margin:15px
+0;overflow:hidden;background:transparent;border:0;border-bottom:1px solid
+#ddd}.rule:after,.rule:before,hr:after,hr:before{display:table;content:""}.rule:after,hr:after{clear:both}fieldset{padding:0;margin:0;border:0}label{font-size:13px;font-weight:700}#adv_code_search
+.search-page-label,input[type=email],input[type=number],input[type=password],input[type=tel],input[type=text],input[type=url],textarea{min-height:34px;padding:7px
+8px;font-size:13px;color:#333;vertical-align:middle;background-color:#fff;background-repeat:no-repeat;background-position:100%;border:1px
+solid #ccc;border-radius:3px;outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.075)}#adv_code_search
+.focus.search-page-label,#adv_code_search .search-page-label:focus,.focused
+.drag-and-drop,input[type=email].focus,input[type=email]:focus,input[type=number].focus,input[type=number]:focus,input[type=password].focus,input[type=password]:focus,input[type=tel].focus,input[type=tel]:focus,input[type=text].focus,input[type=text]:focus,input[type=url].focus,input[type=url]:focus,textarea.focus,textarea:focus{border-color:#51a7e8;box-shadow:inset
+0 1px 2px rgba(0,0,0,.075),0 0 5px
+rgba(81,167,232,.5)}.input-contrast,input.input-contrast{background-color:#fafafa}.input-contrast:focus,input.input-contrast:focus{background-color:#fff}:-moz-placeholder,::-webkit-input-placeholder{color:#aaa}::-webkit-validation-bubble-message{font-size:12px;color:#fff;background:#9c2400;border:0;border-radius:3px;-webkit-box-shadow:1px
+1px 1px
+rgba(0,0,0,.1)}input::-webkit-validation-bubble-icon{display:none}::-webkit-validation-bubble-arrow{background-color:#9c2400;border:1px
+solid #9c2400;-webkit-box-shadow:1px 1px 1px
+rgba(0,0,0,.1)}.absent{color:#c00}.anchor{position:absolute;top:0;bottom:0;left:0;display:block;padding-right:6px;padding-left:30px;margin-left:-30px}.anchor:focus{outline:none}h1,h2,h3,h4,h5,h6{position:relative;margin-top:1em;margin-bottom:16px;font-weight:700;line-height:1.4}h1
+.octicon-link,h2 .octicon-link,h3 .octicon-link,h4 .octicon-link,h5 .octicon-link,h6
+.octicon-link{display:none;color:#000;vertical-align:middle}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor,h4:hover
+.anchor,h5:hover .anchor,h6:hover
+.anchor{height:1em;padding-left:8px;margin-left:-30px;line-height:1;text-decoration:none}h1:hover .anchor
+.octicon-link,h2:hover .anchor .octicon-link,h3:hover .anchor .octicon-link,h4:hover .anchor .octicon-link,h5:hover
+.anchor .octicon-link,h6:hover .anchor .octicon-link{display:inline-block}h1 code,h1 tt,h2 code,h2 tt,h3 code,h3 tt,h4
+code,h4 tt,h5 code,h5 tt,h6 code,h6
+tt{font-size:inherit}h1{font-size:2.25em;line-height:1.2}h1,h2{padding-bottom:.3em;border-bottom:1px solid
+#eee}h2{font-size:1.75em;line-height:1.225}h3{font-size:1.5em;line-height:1.43}h4{font-size:1.25em}h5,h6{font-size:1em}h6{color:#777}blockquote,dl,ol,p,pre,table,ul{margin-top:0;margin-bottom:16px}hr{height:4px;padding:0;margin:16px
+0;background-color:#e7e7e7;border:0 none}ol,ul{padding-left:2em}ol.no-list,ul.no-list{padding:0;list-style-type:none}ol
+ol,ol ul,ul ol,ul ul{margin-top:0;margin-bottom:0}li>p{margin-top:16px}dl,dl dt{padding:0}dl
+dt{margin-top:16px;font-size:1em;font-style:italic;font-weight:700}dl dd{padding:0
+16px;margin-bottom:16px}blockquote{padding:0 15px;color:#777;border-left:4px solid
+#ddd}blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}table
+th{font-weight:700}table td,table th{padding:6px 13px;border:1px solid #ddd}table
+tr{background-color:#fff;border-top:1px solid #ccc}table
+tr:nth-child(2n){background-color:#f8f8f8}img{max-width:100%;box-sizing:border-box}span.frame,span.frame>span{display:block;overflow:hidden}span.frame>span{float:left;width:auto;padding:7px;margin:13px
+0 0;border:1px solid #ddd}span.frame span img{display:block;float:left}span.frame span span{display:block;padding:5px 0
+0;clear:both;color:#333}span.align-center{display:block;overflow:hidden;clear:both}span.align-center>span{display:block;margin:13px
+auto 0;overflow:hidden;text-align:center}span.align-center span img{margin:0
+auto;text-align:center}span.align-right{display:block;overflow:hidden;clear:both}span.align-right>span{display:block;margin:13px
+0 0;overflow:hidden;text-align:right}span.align-right span
+img{margin:0;text-align:right}span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}span.float-left
+span{margin:13px 0
+0}span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}span.float-right>span{display:block;margin:13px
+auto
+0;overflow:hidden;text-align:right}code,tt{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}code:after,code:before,tt:after,tt:before{letter-spacing:-.2em;content:"\00a0"}code
+br,tt br{display:none}del
+code{text-decoration:inherit;vertical-align:text-top}pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.highlight{margin-bottom:16px}.highlight
+pre,pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.highlight
+pre{margin-bottom:0;word-break:normal}pre,pre code,pre tt{word-wrap:normal}pre code,pre
+tt{display:inline;max-width:none;padding:0;margin:0;overflow:initial;line-height:inherit;background-color:transparent;border:0}pre
+code:after,pre code:before,pre tt:after,pre
+tt:before{content:normal}abbr,address,article,aside,audio,b,blockquote,body,canvas,caption,cite,code,dd,del,details,dfn,div,dl,dt,em,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}nav
+ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent}ins{text-decoration:none}ins,mark{background-color:#ff9;color:#000}mark{font-style:italic;font-weight:700}del{text-decoration:line-through}abbr[title],dfn[title]{border-bottom:1px
+dotted;cursor:help}table{border-collapse:collapse;border-spacing:0}hr{display:block;height:1px;border:0;border-top:1px
+solid #ccc;margin:1em
+0;padding:0}input,select{vertical-align:middle}body{background-color:#fff;color:#123;font-size:14px;font-family:Helvetica
+Neue,Helvetica,Segoe UI,Arial,freesans,sans-serif}main{max-width:1180px;padding:30px;margin:0 auto}@media
+(min-width:900px){main h1+p{font-size:2em}}h1{font-weight:300;font-size:2em;line-height:1.4em;margin:.5em
+0;font-family:Georgia,serif;-webkit-transition:color .4s;transition:color
+.4s}h2{font-size:2em}h2,h3{font-weight:300;margin:30px
+0}h3{font-size:1.8em}h4{font-size:1.6em}h4,h5{font-weight:300}h5{font-size:1.2em}h6{font-weight:300;font-size:1em}p{line-height:1.4em;font-size:1.2em;margin:15px
+0}blockquote{border-left:5px solid
+#ff1d55;background-color:#ffe9ee;padding:1em;margin-bottom:1em}.lightbox{background-color:rgba(3,121,196,.4);min-height:100vh;min-width:100vw;padding:30px}code{font:12px
+Consolas,Liberation Mono,Menlo,Courier,monospace}p>code{color:#ff1d55}pre
+code{display:block;background-color:#f7f7f7;padding:15px;overflow:auto;color:#123;line-height:1.4em}a{color:#ff1d55;text-decoration:none;-webkit-transition:color
+.4s,background .4s;transition:color .4s,background .4s}a:hover{color:#e9003a}ol,ul{margin:7.5px;padding:7.5px 15px}ol
+li,ul li{margin:7.5px 15px}.doc-parameters{list-style-type:none;padding:0}.doc-parameters
+li{display:block;margin:0;margin-bottom:15px}.doc-parameters .example,.doc-parameters blockquote{border-left:5px solid
+#0379c4;background-color:#96d5fd;color:#123;line-height:1em;font-size:1em;padding:1em;margin:0}.doc-parameters
+.example{background-color:#c8e9fe}.doc-parameters
+.parameter{display:block;padding:1em;background-color:#0379c4;color:#fff;margin:0}.doc-parameters .parameter
+strong{display:inline-block;padding:0
+.5em;border-radius:.25em;line-height:2em;background-color:#025a92}hr{height:.25em;padding:0;margin:24px
+0;background-color:#f7f7f7;border:0}.teaser{display:-webkit-box;display:-ms-flexbox;display:flex;text-align:left;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.teaser
+aside{-ms-flex-preferred-size:60%;flex-basis:60%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;padding:30px}@media
+(max-width:700px){.teaser aside{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content{-ms-flex-preferred-size:40%;flex-basis:40%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;color:dimgray;font-size:12px}@media
+(max-width:700px){.teaser .content{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content.content-full{-ms-flex-preferred-size:100%;flex-basis:100%}.teaser .content
+h3{font-size:14px;text-transform:uppercase;font-weight:600;color:#123}.main-index{text-align:center}.main-index
+amp-img{margin:15px auto;width:50%}@media (min-width:900px){.main-index
+p{font-size:2em}}.breadcrumbs{padding:1em;background-color:#f7f7f7}.breadcrumbs
+ul{display:block;margin:0;padding:0}.breadcrumbs ul li{display:inline-block;margin:0 .5em}.breadcrumbs ul
+li:before{content:' / ';position:relative;margin-left:-.5em;color:dimgray}.breadcrumbs ul li
+a{color:dimgray}.breadcrumbs ul li:last-child
+a{color:#ff1d55}header{background-color:#000000;color:#fff;padding:30px;position:relative}header
+.brand{display:inline-block;position:absolute;left:30px;top:20px;line-height:15px;text-transform:uppercase;padding:7.5px;font-size:1.4em}header
+.brand:hover{background-color:#ff1d55;color:#fff}header
+a{color:#fff;text-decoration:none;border-radius:7.5px;padding:7.5px}header
+a:hover{text-decoration:none;background-color:#fff;color:#ff1d55}header nav
+ul{padding:0;margin:0;display:block;text-align:right}header nav ul li{padding:0;margin:0
+7.5px;display:inline-block}header nav ul li.hamburger{display:none}header nav ul li.hamburger
+button{position:absolute;right:30px;top:20px;border:0;background-color:#fff;color:#ff1d55;font-weight:700;border-radius:50%;width:30px;height:30px;overflow:hidden;text-align:center;padding:0;margin:0}@media
+(max-width:900px){header nav ul li{display:none}header nav ul
+li.hamburger{display:inline-block}}.sidebarNavigation{width:210px;max-width:95%}.sidebarNavigation
+ul{padding:0;margin:0}.sidebarNavigation ul li{display:block}.sidebarNavigation ul li
+a{display:block;line-height:1.4em;padding:7.5px}footer{margin:60px
+auto;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;max-width:1180px;padding:30px;font-size:12px}footer
+a:hover{text-decoration:none}footer strong{text-transform:uppercase;margin-bottom:15px;display:block}footer strong
+a{color:#1d1d1d}footer ul{display:block;padding:0;margin:0}footer ul li{display:block;line-height:1.4em;padding:7.5px
+0;margin:0}footer ul li a{color:dimgray}footer
+.quarter-section{margin-bottom:30px;-ms-flex-preferred-size:25%;flex-basis:25%}@media (max-width:900px){footer
+.quarter-section{-ms-flex-preferred-size:33%;flex-basis:33%}}@media (max-width:700px){footer
+.quarter-section{-ms-flex-preferred-size:50%;flex-basis:50%}}@media (max-width:500px){footer
+.quarter-section{-ms-flex-preferred-size:100%;flex-basis:100%}}.boxes{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;font-size:12px}.boxes
+.box{-ms-flex-preferred-size:30%;flex-basis:30%;background-color:#f7f7f7;padding:30px;margin:7.5px
+0;text-align:left;font-size:12px}.boxes .box h3{font-size:12px;line-height:1em;padding:0;margin:0}.boxes .box
+a{padding:0;color:#ff1d55}.boxes .box p{color:dimgray;font-size:12px;margin:7.5px 0}@media (max-width:900px){.boxes
+.box{-ms-flex-preferred-size:45%;flex-basis:45%}}@media (max-width:500px){.boxes
+.box{-ms-flex-preferred-size:100%;flex-basis:100%}}
+
+.fixed-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: auto;
+}
+
+amp-img.contain img {
+  object-fit: contain;
+}
+
+.footnotes {
+  overflow-wrap: break-word;
+}
+
+    </style>
+
+
+</head>
+
+<body>
+
+<main>
+  
+  <section class="container page">
+  <article>
+    <header>
+      <h1>深度解读 java 线程池设计思想及源码实现</h1>
+    </header>
+
+    <p>我相信大家都看过很多的关于线程池的文章，基本上也是面试的时候必问的，如果你在看过很多文章以后，还是一知半解的，那希望这篇文章能让你真正的掌握好 Java 线程池。</p>
+<p>本文一大重点是源码解析，同时会有少量篇幅介绍线程池设计思想以及作者 Doug Lea 实现过程中的一些巧妙用法。本文还是会一行行关键代码进行分析，目的是为了让那些自己看源码不是很理解的同学可以得到参考。</p>
+<p>线程池是非常重要的工具，如果你要成为一个好的工程师，还是得比较好地掌握这个知识，很多线上问题都是因为没有用好线程池导致的。即使你为了谋生，也要知道，这基本上是面试必问的题目，而且面试官很容易从被面试者的回答中捕捉到被面试者的技术水平。</p>
+<p>本文略长，建议在 pc 上阅读，边看文章边翻源码（Java7 和 Java8 都一样），建议想好好看的读者抽出至少 30 分钟的整块时间来阅读。当然，如果读者仅为面试准备，可以直接滑到最后的<strong>总结</strong>部分。</p>
+<h2 id="总览">总览</h2>
+<p>开篇来一些废话。下图是 java 线程池几个相关类的继承结构：</p>
+<p><img src="http://img.zhouyi.tech/note/1-59effd3e154845a4b20baf4036b88930.jpg" alt="1"></p>
+<p>先简单说说这个继承结构，Executor 位于最顶层，也是最简单的，就一个 execute(Runnable runnable) 接口方法定义。</p>
+<p>ExecutorService 也是接口，在 Executor 接口的基础上添加了很多的接口方法，所以<strong>一般来说我们会使用这个接口</strong>。</p>
+<p>然后再下来一层是 AbstractExecutorService，从名字我们就知道，这是抽象类，这里实现了非常有用的一些方法供子类直接使用，之后我们再细说。</p>
+<p>然后才到我们的重点部分 ThreadPoolExecutor 类，这个类提供了关于线程池所需的非常丰富的功能。</p>
+<p>另外，我们还涉及到下图中的这些类：</p>
+<p><img src="http://img.zhouyi.tech/note/others-a8193a416d4743b98ee71751210a173c.png" alt="others"></p>
+<p>同在并发包中的 Executors 类，类名中带字母 s，我们猜到这个是工具类，里面的方法都是静态方法，如以下我们最常用的用于生成 ThreadPoolExecutor 的实例的一些方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newCachedThreadPool() {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(0, Integer.<span style="color:#007f7f">MAX_VALUE</span>,
+                                  60L, TimeUnit.<span style="color:#007f7f">SECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> SynchronousQueue&lt;Runnable&gt;());
+}
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newFixedThreadPool(<span style="color:#fff;font-weight:bold">int</span> nThreads) {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.<span style="color:#007f7f">MILLISECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> LinkedBlockingQueue&lt;Runnable&gt;());
+}
+</code></pre></div><p>另外，由于线程池支持<strong>获取线程执行的结果</strong>，所以，引入了 Future 接口，RunnableFuture 继承自此接口，然后我们最需要关心的就是它的实现类 FutureTask。到这里，记住这个概念，在线程池的使用过程中，我们是往线程池提交任务（task），使用过线程池的都知道，我们提交的每个任务是实现了 Runnable 接口的，其实就是先将 Runnable 的任务包装成 FutureTask，然后再提交到线程池。这样，读者才能比较容易记住 FutureTask 这个类名：它首先是一个任务（Task），然后具有 Future 接口的语义，即可以在将来（Future）得到执行的结果。</p>
+<p>当然，线程池中的 BlockingQueue 也是非常重要的概念，如果线程数达到 corePoolSize，我们的每个任务会提交到等待队列中，等待线程池中的线程来取任务并执行。这里的 BlockingQueue 通常我们使用其实现类 LinkedBlockingQueue、ArrayBlockingQueue 和 SynchronousQueue，每个实现类都有不同的特征，使用场景之后会慢慢分析。想要详细了解各个 BlockingQueue 的读者，可以参考我的前面的一篇对 BlockingQueue 的各个实现类进行详细分析的文章。</p>
+<blockquote>
+<p>把事情说完整：除了上面说的这些类外，还有一个很重要的类，就是定时任务实现类 ScheduledThreadPoolExecutor，它继承自本文要重点讲解的 ThreadPoolExecutor，用于实现定时执行。不过本文不会介绍它的实现，我相信读者看完本文后可以比较容易地看懂它的源码。</p>
+</blockquote>
+<p>以上就是本文要介绍的知识，废话不多说，开始进入正文。</p>
+<h2 id="executor-接口">Executor 接口</h2>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">/* 
+</span><span style="color:#007f7f"> * @since 1.5
+</span><span style="color:#007f7f"> * @author Doug Lea
+</span><span style="color:#007f7f"> */</span>
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">interface</span> Executor {
+    <span style="color:#fff;font-weight:bold">void</span> execute(Runnable command);
+}
+</code></pre></div><p>我们可以看到 Executor 接口非常简单，就一个 <code>void execute(Runnable command)</code> 方法，代表提交一个任务。为了让大家理解 java 线程池的整个设计方案，我会按照 Doug Lea 的设计思路来多说一些相关的东西。</p>
+<p>我们经常这样启动一个线程：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">new</span> Thread(<span style="color:#fff;font-weight:bold">new</span> Runnable(){
+  <span style="color:#007f7f">// do something
+</span><span style="color:#007f7f"></span>}).<span style="color:#007f7f">start</span>();
+</code></pre></div><p>用了线程池 Executor 后就可以像下面这么使用：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Executor executor = anExecutor;
+executor.<span style="color:#007f7f">execute</span>(<span style="color:#fff;font-weight:bold">new</span> RunnableTask1());
+executor.<span style="color:#007f7f">execute</span>(<span style="color:#fff;font-weight:bold">new</span> RunnableTask2());
+</code></pre></div><p>如果我们希望线程池同步执行每一个任务，我们可以这么实现这个接口：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">class</span> DirectExecutor <span style="color:#fff;font-weight:bold">implements</span> Executor {
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> execute(Runnable r) {
+        r.<span style="color:#007f7f">run</span>();<span style="color:#007f7f">// 这里不是用的new Thread(r).start()，也就是说没有启动任何一个新的线程。
+</span><span style="color:#007f7f"></span>    }
+}
+</code></pre></div><p>我们希望每个任务提交进来后，直接启动一个新的线程来执行这个任务，我们可以这么实现：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">class</span> ThreadPerTaskExecutor <span style="color:#fff;font-weight:bold">implements</span> Executor {
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> execute(Runnable r) {
+        <span style="color:#fff;font-weight:bold">new</span> Thread(r).<span style="color:#007f7f">start</span>();  <span style="color:#007f7f">// 每个任务都用一个新的线程来执行
+</span><span style="color:#007f7f"></span>    }
+}
+</code></pre></div><p>我们再来看下怎么组合两个 Executor 来使用，下面这个实现是将所有的任务都加到一个 queue 中，然后从 queue 中取任务，交给真正的执行器执行，这里采用 synchronized 进行并发控制：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">class</span> SerialExecutor <span style="color:#fff;font-weight:bold">implements</span> Executor {
+    <span style="color:#007f7f">// 任务队列
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">final</span> Queue&lt;Runnable&gt; tasks = <span style="color:#fff;font-weight:bold">new</span> ArrayDeque&lt;Runnable&gt;();
+    <span style="color:#007f7f">// 这个才是真正的执行器
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">final</span> Executor executor;
+    <span style="color:#007f7f">// 当前正在执行的任务
+</span><span style="color:#007f7f"></span>    Runnable active;
+  
+    <span style="color:#007f7f">// 初始化的时候，指定执行器
+</span><span style="color:#007f7f"></span>    SerialExecutor(Executor executor) {
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">executor</span> = executor;
+    }
+ 
+    <span style="color:#007f7f">// 添加任务到线程池: 将任务添加到任务队列，scheduleNext 触发执行器去任务队列取任务
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">synchronized</span> <span style="color:#fff;font-weight:bold">void</span> execute(<span style="color:#fff;font-weight:bold">final</span> Runnable r) {
+        tasks.<span style="color:#007f7f">offer</span>(<span style="color:#fff;font-weight:bold">new</span> Runnable() {
+            <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> run() {
+                <span style="color:#fff;font-weight:bold">try</span> {
+                    r.<span style="color:#007f7f">run</span>();
+                } <span style="color:#fff;font-weight:bold">finally</span> {
+                    scheduleNext();
+                }
+            }
+        });
+        <span style="color:#fff;font-weight:bold">if</span> (active == <span style="color:#fff;font-weight:bold">null</span>) {
+            scheduleNext();
+        }
+    }
+
+    <span style="color:#fff;font-weight:bold">protected</span> <span style="color:#fff;font-weight:bold">synchronized</span> <span style="color:#fff;font-weight:bold">void</span> scheduleNext() {
+        <span style="color:#fff;font-weight:bold">if</span> ((active = tasks.<span style="color:#007f7f">poll</span>()) != <span style="color:#fff;font-weight:bold">null</span>) {
+            <span style="color:#007f7f">// 具体的执行转给真正的执行器 executor
+</span><span style="color:#007f7f"></span>            executor.<span style="color:#007f7f">execute</span>(active);
+        }
+    }
+}
+</code></pre></div><p>当然了，Executor 这个接口只有提交任务的功能，太简单了，我们想要更丰富的功能，比如我们想知道执行结果、我们想知道当前线程池有多少个线程活着、已经完成了多少任务等等，这些都是这个接口的不足的地方。接下来我们要介绍的是继承自 <code>Executor</code> 接口的 <code>ExecutorService</code> 接口，这个接口提供了比较丰富的功能，也是我们最常使用到的接口。</p>
+<h2 id="executorservice">ExecutorService</h2>
+<p>一般我们定义一个线程池的时候，往往都是使用这个接口：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">ExecutorService executor = Executors.<span style="color:#007f7f">newFixedThreadPool</span>(args...);
+ExecutorService executor = Executors.<span style="color:#007f7f">newCachedThreadPool</span>(args...);
+</code></pre></div><p>因为这个接口中定义的一系列方法大部分情况下已经可以满足我们的需要了。</p>
+<p>那么我们简单初略地来看一下这个接口中都有哪些方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">interface</span> ExecutorService <span style="color:#fff;font-weight:bold">extends</span> Executor {
+
+    <span style="color:#007f7f">// 关闭线程池，已提交的任务继续执行，不接受继续提交新任务
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">void</span> shutdown();
+
+    <span style="color:#007f7f">// 关闭线程池，尝试停止正在执行的所有任务，不接受继续提交新任务
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 它和前面的方法相比，加了一个单词“now”，区别在于它会去停止当前正在进行的任务
+</span><span style="color:#007f7f"></span>    List&lt;Runnable&gt; shutdownNow();
+
+    <span style="color:#007f7f">// 线程池是否已关闭
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> isShutdown();
+
+    <span style="color:#007f7f">// 如果调用了 shutdown() 或 shutdownNow() 方法后，所有任务结束了，那么返回true
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 这个方法必须在调用shutdown或shutdownNow方法之后调用才会返回true
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> isTerminated();
+
+    <span style="color:#007f7f">// 等待所有任务完成，并设置超时时间
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 我们这么理解，实际应用中是，先调用 shutdown 或 shutdownNow，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 然后再调这个方法等待所有的线程真正地完成，返回值意味着有没有超时
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> awaitTermination(<span style="color:#fff;font-weight:bold">long</span> timeout, TimeUnit unit)
+            <span style="color:#fff;font-weight:bold">throws</span> InterruptedException;
+
+    <span style="color:#007f7f">// 提交一个 Callable 任务
+</span><span style="color:#007f7f"></span>    &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);
+
+    <span style="color:#007f7f">// 提交一个 Runnable 任务，第二个参数将会放到 Future 中，作为返回值，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 因为 Runnable 的 run 方法本身并不返回任何东西
+</span><span style="color:#007f7f"></span>    &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result);
+
+    <span style="color:#007f7f">// 提交一个 Runnable 任务
+</span><span style="color:#007f7f"></span>    Future&lt;?&gt; submit(Runnable task);
+
+    <span style="color:#007f7f">// 执行所有任务，返回 Future 类型的一个 list
+</span><span style="color:#007f7f"></span>    &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks)
+            <span style="color:#fff;font-weight:bold">throws</span> InterruptedException;
+
+    <span style="color:#007f7f">// 也是执行所有任务，但是这里设置了超时时间
+</span><span style="color:#007f7f"></span>    &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks,
+                                  <span style="color:#fff;font-weight:bold">long</span> timeout, TimeUnit unit)
+            <span style="color:#fff;font-weight:bold">throws</span> InterruptedException;
+
+    <span style="color:#007f7f">// 只有其中的一个任务结束了，就可以返回，返回执行完的那个任务的结果
+</span><span style="color:#007f7f"></span>    &lt;T&gt; T invokeAny(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks)
+            <span style="color:#fff;font-weight:bold">throws</span> InterruptedException, ExecutionException;
+  
+    <span style="color:#007f7f">// 同上一个方法，只有其中的一个任务结束了，就可以返回，返回执行完的那个任务的结果，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 不过这个带超时，超过指定的时间，抛出 TimeoutException 异常
+</span><span style="color:#007f7f"></span>    &lt;T&gt; T invokeAny(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks,
+                    <span style="color:#fff;font-weight:bold">long</span> timeout, TimeUnit unit)
+            <span style="color:#fff;font-weight:bold">throws</span> InterruptedException, ExecutionException, TimeoutException;
+}
+</code></pre></div><p>这些方法都很好理解，一个简单的线程池主要就是这些功能，能提交任务，能获取结果，能关闭线程池，这也是为什么我们经常用这个接口的原因。</p>
+<div id="FutureTask"></div>
+<h2 id="futuretask">FutureTask</h2>
+<p>在继续往下层介绍 ExecutorService 的实现类之前，我们先来说说相关的类 FutureTask。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">Future      Runnable
+   <span style="color:#f00">\</span>           /
+    <span style="color:#f00">\</span>         /
+   RunnableFuture
+          |
+          |
+      FutureTask
+      
+FutureTask 通过 RunnableFuture 间接实现了 Runnable 接口<span style="color:#f00">，</span>
+所以每个 Runnable 通常都先包装成 FutureTask<span style="color:#f00">，</span>
+然后调用 executor.<span style="color:#007f7f">execute</span>(Runnable command) 将其提交给线程池
+</code></pre></div><p>我们知道，Runnable 的 void run() 方法是没有返回值的，所以，通常，如果我们需要的话，会在 submit 中指定第二个参数作为返回值：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">&lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result);
+</code></pre></div><p>其实到时候会通过这两个参数，将其包装成 Callable。它和 Runnable 的区别在于 run() 没有返回值，而 Callable 的 call() 方法有返回值，同时，如果运行出现异常，call() 方法会抛出异常。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">interface</span> Callable&lt;V&gt; {
+   
+    V call() <span style="color:#fff;font-weight:bold">throws</span> Exception;
+}
+</code></pre></div><p>在这里，就不展开说 FutureTask 类了，因为本文篇幅本来就够大了，这里我们需要知道怎么用就行了。</p>
+<p>下面，我们来看看 <code>ExecutorService</code> 的抽象实现 <code>AbstractExecutorService</code> 。</p>
+<h2 id="abstractexecutorservice">AbstractExecutorService</h2>
+<p>AbstractExecutorService 抽象类派生自 ExecutorService 接口，然后在其基础上实现了几个实用的方法，这些方法提供给子类进行调用。</p>
+<p>这个抽象类实现了 invokeAny 方法和 invokeAll 方法，这里的两个 newTaskFor 方法也比较有用，用于将任务包装成 FutureTask。定义于最上层接口 Executor中的 <code>void execute(Runnable command)</code> 由于不需要获取结果，不会进行 FutureTask 的包装。</p>
+<blockquote>
+<p>需要获取结果（FutureTask），用 submit 方法，不需要获取结果，可以用 execute 方法。</p>
+</blockquote>
+<p>下面，我将一行一行源码地来分析这个类，跟着源码来看看其实现吧：</p>
+<blockquote>
+<p>Tips: invokeAny 和 invokeAll 方法占了这整个类的绝大多数篇幅，读者可以选择适当跳过，因为它们可能在你的实践中使用的频次比较低，而且它们不带有承前启后的作用，不用担心会漏掉什么导致看不懂后面的代码。</p>
+</blockquote>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">abstract</span> <span style="color:#fff;font-weight:bold">class</span> AbstractExecutorService <span style="color:#fff;font-weight:bold">implements</span> ExecutorService {
+
+    <span style="color:#007f7f">// RunnableFuture 是用于获取执行结果的，我们常用它的子类 FutureTask
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 下面两个 newTaskFor 方法用于将我们的任务包装成 FutureTask 提交到线程池中执行
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">protected</span> &lt;T&gt; RunnableFuture&lt;T&gt; newTaskFor(Runnable runnable, T value) {
+        <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> FutureTask&lt;T&gt;(runnable, value);
+    }
+
+    <span style="color:#fff;font-weight:bold">protected</span> &lt;T&gt; RunnableFuture&lt;T&gt; newTaskFor(Callable&lt;T&gt; callable) {
+        <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> FutureTask&lt;T&gt;(callable);
+    }
+
+    <span style="color:#007f7f">// 提交任务
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">public</span> Future&lt;?&gt; submit(Runnable task) {
+        <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        <span style="color:#007f7f">// 1. 将任务包装成 FutureTask
+</span><span style="color:#007f7f"></span>        RunnableFuture&lt;Void&gt; ftask = newTaskFor(task, <span style="color:#fff;font-weight:bold">null</span>);
+        <span style="color:#007f7f">// 2. 交给执行器执行，execute 方法由具体的子类来实现
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 前面也说了，FutureTask 间接实现了Runnable 接口。
+</span><span style="color:#007f7f"></span>        execute(ftask);
+        <span style="color:#fff;font-weight:bold">return</span> ftask;
+    }
+
+    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result) {
+        <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        <span style="color:#007f7f">// 1. 将任务包装成 FutureTask
+</span><span style="color:#007f7f"></span>        RunnableFuture&lt;T&gt; ftask = newTaskFor(task, result);
+        <span style="color:#007f7f">// 2. 交给执行器执行
+</span><span style="color:#007f7f"></span>        execute(ftask);
+        <span style="color:#fff;font-weight:bold">return</span> ftask;
+    }
+  
+    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) {
+        <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        <span style="color:#007f7f">// 1. 将任务包装成 FutureTask
+</span><span style="color:#007f7f"></span>        RunnableFuture&lt;T&gt; ftask = newTaskFor(task);
+        <span style="color:#007f7f">// 2. 交给执行器执行
+</span><span style="color:#007f7f"></span>        execute(ftask);
+        <span style="color:#fff;font-weight:bold">return</span> ftask;
+    }
+
+    <span style="color:#007f7f">// 此方法目的：将 tasks 集合中的任务提交到线程池执行，任意一个线程执行完后就可以结束了
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 第二个参数 timed 代表是否设置超时机制，超时时间为第三个参数，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 如果 timed 为 true，同时超时了还没有一个线程返回结果，那么抛出 TimeoutException 异常
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">private</span> &lt;T&gt; T doInvokeAny(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks,
+                            <span style="color:#fff;font-weight:bold">boolean</span> timed, <span style="color:#fff;font-weight:bold">long</span> nanos)
+        <span style="color:#fff;font-weight:bold">throws</span> InterruptedException, ExecutionException, TimeoutException {
+        <span style="color:#fff;font-weight:bold">if</span> (tasks == <span style="color:#fff;font-weight:bold">null</span>)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        <span style="color:#007f7f">// 任务数
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">int</span> ntasks = tasks.<span style="color:#007f7f">size</span>();
+        <span style="color:#fff;font-weight:bold">if</span> (ntasks == 0)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> IllegalArgumentException();
+        <span style="color:#007f7f">// 
+</span><span style="color:#007f7f"></span>        List&lt;Future&lt;T&gt;&gt; futures= <span style="color:#fff;font-weight:bold">new</span> ArrayList&lt;Future&lt;T&gt;&gt;(ntasks);
+      
+        <span style="color:#007f7f">// ExecutorCompletionService 不是一个真正的执行器，参数 this 才是真正的执行器
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 它对执行器进行了包装，每个任务结束后，将结果保存到内部的一个 completionQueue 队列中
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 这也是为什么这个类的名字里面有个 Completion 的原因吧。
+</span><span style="color:#007f7f"></span>        ExecutorCompletionService&lt;T&gt; ecs =
+            <span style="color:#fff;font-weight:bold">new</span> ExecutorCompletionService&lt;T&gt;(<span style="color:#fff;font-weight:bold">this</span>);
+        <span style="color:#fff;font-weight:bold">try</span> {
+            <span style="color:#007f7f">// 用于保存异常信息，此方法如果没有得到任何有效的结果，那么我们可以抛出最后得到的一个异常
+</span><span style="color:#007f7f"></span>            ExecutionException ee = <span style="color:#fff;font-weight:bold">null</span>;
+            <span style="color:#fff;font-weight:bold">long</span> lastTime = timed ? System.<span style="color:#007f7f">nanoTime</span>() : 0;
+            Iterator&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; it = tasks.<span style="color:#007f7f">iterator</span>();
+
+            <span style="color:#007f7f">// 首先先提交一个任务，后面的任务到下面的 for 循环一个个提交
+</span><span style="color:#007f7f"></span>            futures.<span style="color:#007f7f">add</span>(ecs.<span style="color:#007f7f">submit</span>(it.<span style="color:#007f7f">next</span>()));
+            <span style="color:#007f7f">// 提交了一个任务，所以任务数量减 1
+</span><span style="color:#007f7f"></span>            --ntasks;
+            <span style="color:#007f7f">// 正在执行的任务数(提交的时候 +1，任务结束的时候 -1)
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">int</span> active = 1;
+
+            <span style="color:#fff;font-weight:bold">for</span> (;;) {
+                <span style="color:#007f7f">// ecs 上面说了，其内部有一个 completionQueue 用于保存执行完成的结果
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">// BlockingQueue 的 poll 方法不阻塞，返回 null 代表队列为空
+</span><span style="color:#007f7f"></span>                Future&lt;T&gt; f = ecs.<span style="color:#007f7f">poll</span>();
+                <span style="color:#007f7f">// 为 null，说明刚刚提交的第一个线程还没有执行完成
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">// 在前面先提交一个任务，加上这里做一次检查，也是为了提高性能
+</span><span style="color:#007f7f"></span>                <span style="color:#fff;font-weight:bold">if</span> (f == <span style="color:#fff;font-weight:bold">null</span>) {
+                    <span style="color:#fff;font-weight:bold">if</span> (ntasks &gt; 0) {
+                        --ntasks;
+                        futures.<span style="color:#007f7f">add</span>(ecs.<span style="color:#007f7f">submit</span>(it.<span style="color:#007f7f">next</span>()));
+                        ++active;
+                    }
+                    <span style="color:#007f7f">// 这里是 else if，不是 if。这里说明，没有任务了，同时 active 为 0 说明
+</span><span style="color:#007f7f"></span>                    <span style="color:#007f7f">// 任务都执行完成了。其实我也没理解为什么这里做一次 break？
+</span><span style="color:#007f7f"></span>                    <span style="color:#007f7f">// 因为我认为 active 为 0 的情况，必然从下面的 f.get() 返回了
+</span><span style="color:#007f7f"></span>                    
+                    <span style="color:#007f7f">// 2018-02-23 感谢读者 newmicro 的 comment，
+</span><span style="color:#007f7f"></span>                    <span style="color:#007f7f">//  这里的 active == 0，说明所有的任务都执行失败，那么这里是 for 循环出口
+</span><span style="color:#007f7f"></span>                    <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (active == 0)
+                        <span style="color:#fff;font-weight:bold">break</span>;
+                    <span style="color:#007f7f">// 这里也是 else if。这里说的是，没有任务了，但是设置了超时时间，这里检测是否超时
+</span><span style="color:#007f7f"></span>                    <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (timed) {
+                        <span style="color:#007f7f">// 带等待的 poll 方法
+</span><span style="color:#007f7f"></span>                        f = ecs.<span style="color:#007f7f">poll</span>(nanos, TimeUnit.<span style="color:#007f7f">NANOSECONDS</span>);
+                        <span style="color:#007f7f">// 如果已经超时，抛出 TimeoutException 异常，这整个方法就结束了
+</span><span style="color:#007f7f"></span>                        <span style="color:#fff;font-weight:bold">if</span> (f == <span style="color:#fff;font-weight:bold">null</span>)
+                            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> TimeoutException();
+                        <span style="color:#fff;font-weight:bold">long</span> now = System.<span style="color:#007f7f">nanoTime</span>();
+                        nanos -= now - lastTime;
+                        lastTime = now;
+                    }
+                    <span style="color:#007f7f">// 这里是 else。说明，没有任务需要提交，但是池中的任务没有完成，还没有超时(如果设置了超时)
+</span><span style="color:#007f7f"></span>                    <span style="color:#007f7f">// take() 方法会阻塞，直到有元素返回，说明有任务结束了
+</span><span style="color:#007f7f"></span>                    <span style="color:#fff;font-weight:bold">else</span>
+                        f = ecs.<span style="color:#007f7f">take</span>();
+                }
+                <span style="color:#007f7f">/*
+</span><span style="color:#007f7f">                 * 我感觉上面这一段并不是很好理解，这里简单说下。
+</span><span style="color:#007f7f">                 * 1. 首先，这在一个 for 循环中，我们设想每一个任务都没那么快结束，
+</span><span style="color:#007f7f">                 *     那么，每一次都会进到第一个分支，进行提交任务，直到将所有的任务都提交了
+</span><span style="color:#007f7f">                 * 2. 任务都提交完成后，如果设置了超时，那么 for 循环其实进入了“一直检测是否超时”
+</span><span style="color:#007f7f">                       这件事情上
+</span><span style="color:#007f7f">                 * 3. 如果没有设置超时机制，那么不必要检测超时，那就会阻塞在 ecs.take() 方法上，
+</span><span style="color:#007f7f">                       等待获取第一个执行结果
+</span><span style="color:#007f7f">                 * 4. 如果所有的任务都执行失败，也就是说 future 都返回了，
+</span><span style="color:#007f7f">                       但是 f.get() 抛出异常，那么从 active == 0 分支出去(感谢 newmicro 提出)
+</span><span style="color:#007f7f">                         // 当然，这个需要看下面的 if 分支。
+</span><span style="color:#007f7f">                 */</span>
+              
+              
+              
+                <span style="color:#007f7f">// 有任务结束了
+</span><span style="color:#007f7f"></span>                <span style="color:#fff;font-weight:bold">if</span> (f != <span style="color:#fff;font-weight:bold">null</span>) {
+                    --active;
+                    <span style="color:#fff;font-weight:bold">try</span> {
+                        <span style="color:#007f7f">// 返回执行结果，如果有异常，都包装成 ExecutionException
+</span><span style="color:#007f7f"></span>                        <span style="color:#fff;font-weight:bold">return</span> f.<span style="color:#007f7f">get</span>();
+                    } <span style="color:#fff;font-weight:bold">catch</span> (ExecutionException eex) {
+                        ee = eex;
+                    } <span style="color:#fff;font-weight:bold">catch</span> (RuntimeException rex) {
+                        ee = <span style="color:#fff;font-weight:bold">new</span> ExecutionException(rex);
+                    }
+                }
+            }<span style="color:#007f7f">// 注意看 for 循环的范围，一直到这里
+</span><span style="color:#007f7f"></span>          
+            <span style="color:#fff;font-weight:bold">if</span> (ee == <span style="color:#fff;font-weight:bold">null</span>)
+                ee = <span style="color:#fff;font-weight:bold">new</span> ExecutionException();
+            <span style="color:#fff;font-weight:bold">throw</span> ee;
+		
+        } <span style="color:#fff;font-weight:bold">finally</span> {
+            <span style="color:#007f7f">// 方法退出之前，取消其他的任务
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">for</span> (Future&lt;T&gt; f : futures)
+                f.<span style="color:#007f7f">cancel</span>(<span style="color:#fff;font-weight:bold">true</span>);
+        }
+    }
+
+    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; T invokeAny(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks)
+        <span style="color:#fff;font-weight:bold">throws</span> InterruptedException, ExecutionException {
+        <span style="color:#fff;font-weight:bold">try</span> {
+            <span style="color:#fff;font-weight:bold">return</span> doInvokeAny(tasks, <span style="color:#fff;font-weight:bold">false</span>, 0);
+        } <span style="color:#fff;font-weight:bold">catch</span> (TimeoutException cannotHappen) {
+            <span style="color:#fff;font-weight:bold">assert</span> <span style="color:#fff;font-weight:bold">false</span>;
+            <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">null</span>;
+        }
+    }
+
+    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; T invokeAny(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks,
+                           <span style="color:#fff;font-weight:bold">long</span> timeout, TimeUnit unit)
+        <span style="color:#fff;font-weight:bold">throws</span> InterruptedException, ExecutionException, TimeoutException {
+        <span style="color:#fff;font-weight:bold">return</span> doInvokeAny(tasks, <span style="color:#fff;font-weight:bold">true</span>, unit.<span style="color:#007f7f">toNanos</span>(timeout));
+    }
+
+    <span style="color:#007f7f">// 执行所有的任务，返回任务结果。
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 先不要看这个方法，我们先想想，其实我们自己提交任务到线程池，也是想要线程池执行所有的任务
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 只不过，我们是每次 submit 一个任务，这里以一个集合作为参数提交
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks)
+        <span style="color:#fff;font-weight:bold">throws</span> InterruptedException {
+        <span style="color:#fff;font-weight:bold">if</span> (tasks == <span style="color:#fff;font-weight:bold">null</span>)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        List&lt;Future&lt;T&gt;&gt; futures = <span style="color:#fff;font-weight:bold">new</span> ArrayList&lt;Future&lt;T&gt;&gt;(tasks.<span style="color:#007f7f">size</span>());
+        <span style="color:#fff;font-weight:bold">boolean</span> done = <span style="color:#fff;font-weight:bold">false</span>;
+        <span style="color:#fff;font-weight:bold">try</span> {
+            <span style="color:#007f7f">// 这个很简单
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">for</span> (Callable&lt;T&gt; t : tasks) {
+                <span style="color:#007f7f">// 包装成 FutureTask
+</span><span style="color:#007f7f"></span>                RunnableFuture&lt;T&gt; f = newTaskFor(t);
+                futures.<span style="color:#007f7f">add</span>(f);
+                <span style="color:#007f7f">// 提交任务
+</span><span style="color:#007f7f"></span>                execute(f);
+            }
+            <span style="color:#fff;font-weight:bold">for</span> (Future&lt;T&gt; f : futures) {
+                <span style="color:#fff;font-weight:bold">if</span> (!f.<span style="color:#007f7f">isDone</span>()) {
+                    <span style="color:#fff;font-weight:bold">try</span> {
+                        <span style="color:#007f7f">// 这是一个阻塞方法，直到获取到值，或抛出了异常
+</span><span style="color:#007f7f"></span>                        <span style="color:#007f7f">// 这里有个小细节，其实 get 方法签名上是会抛出 InterruptedException 的
+</span><span style="color:#007f7f"></span>                        <span style="color:#007f7f">// 可是这里没有进行处理，而是抛给外层去了。此异常发生于还没执行完的任务被取消了
+</span><span style="color:#007f7f"></span>                        f.<span style="color:#007f7f">get</span>();
+                    } <span style="color:#fff;font-weight:bold">catch</span> (CancellationException ignore) {
+                    } <span style="color:#fff;font-weight:bold">catch</span> (ExecutionException ignore) {
+                    }
+                }
+            }
+            done = <span style="color:#fff;font-weight:bold">true</span>;
+            <span style="color:#007f7f">// 这个方法返回，不像其他的场景，返回 List&lt;Future&gt;，其实执行结果还没出来
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 这个方法返回是真正的返回，任务都结束了
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">return</span> futures;
+        } <span style="color:#fff;font-weight:bold">finally</span> {
+            <span style="color:#007f7f">// 为什么要这个？就是上面说的有异常的情况
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (!done)
+                <span style="color:#fff;font-weight:bold">for</span> (Future&lt;T&gt; f : futures)
+                    f.<span style="color:#007f7f">cancel</span>(<span style="color:#fff;font-weight:bold">true</span>);
+        }
+    }
+
+    <span style="color:#007f7f">// 带超时的 invokeAll，我们找不同吧
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; List&lt;Future&lt;T&gt;&gt; invokeAll(Collection&lt;? <span style="color:#fff;font-weight:bold">extends</span> Callable&lt;T&gt;&gt; tasks,
+                                         <span style="color:#fff;font-weight:bold">long</span> timeout, TimeUnit unit)
+        <span style="color:#fff;font-weight:bold">throws</span> InterruptedException {
+        <span style="color:#fff;font-weight:bold">if</span> (tasks == <span style="color:#fff;font-weight:bold">null</span> || unit == <span style="color:#fff;font-weight:bold">null</span>)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+        <span style="color:#fff;font-weight:bold">long</span> nanos = unit.<span style="color:#007f7f">toNanos</span>(timeout);
+        List&lt;Future&lt;T&gt;&gt; futures = <span style="color:#fff;font-weight:bold">new</span> ArrayList&lt;Future&lt;T&gt;&gt;(tasks.<span style="color:#007f7f">size</span>());
+        <span style="color:#fff;font-weight:bold">boolean</span> done = <span style="color:#fff;font-weight:bold">false</span>;
+        <span style="color:#fff;font-weight:bold">try</span> {
+            <span style="color:#fff;font-weight:bold">for</span> (Callable&lt;T&gt; t : tasks)
+                futures.<span style="color:#007f7f">add</span>(newTaskFor(t));
+
+            <span style="color:#fff;font-weight:bold">long</span> lastTime = System.<span style="color:#007f7f">nanoTime</span>();
+
+            Iterator&lt;Future&lt;T&gt;&gt; it = futures.<span style="color:#007f7f">iterator</span>();
+            <span style="color:#007f7f">// 每提交一个任务，检测一次是否超时
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">while</span> (it.<span style="color:#007f7f">hasNext</span>()) {
+                execute((Runnable)(it.<span style="color:#007f7f">next</span>()));
+                <span style="color:#fff;font-weight:bold">long</span> now = System.<span style="color:#007f7f">nanoTime</span>();
+                nanos -= now - lastTime;
+                lastTime = now;
+                <span style="color:#007f7f">// 超时
+</span><span style="color:#007f7f"></span>                <span style="color:#fff;font-weight:bold">if</span> (nanos &lt;= 0)
+                    <span style="color:#fff;font-weight:bold">return</span> futures;
+            }
+
+            <span style="color:#fff;font-weight:bold">for</span> (Future&lt;T&gt; f : futures) {
+                <span style="color:#fff;font-weight:bold">if</span> (!f.<span style="color:#007f7f">isDone</span>()) {
+                    <span style="color:#fff;font-weight:bold">if</span> (nanos &lt;= 0)
+                        <span style="color:#fff;font-weight:bold">return</span> futures;
+                    <span style="color:#fff;font-weight:bold">try</span> {
+                        <span style="color:#007f7f">// 调用带超时的 get 方法，这里的参数 nanos 是剩余的时间，
+</span><span style="color:#007f7f"></span>                        <span style="color:#007f7f">// 因为上面其实已经用掉了一些时间了
+</span><span style="color:#007f7f"></span>                        f.<span style="color:#007f7f">get</span>(nanos, TimeUnit.<span style="color:#007f7f">NANOSECONDS</span>);
+                    } <span style="color:#fff;font-weight:bold">catch</span> (CancellationException ignore) {
+                    } <span style="color:#fff;font-weight:bold">catch</span> (ExecutionException ignore) {
+                    } <span style="color:#fff;font-weight:bold">catch</span> (TimeoutException toe) {
+                        <span style="color:#fff;font-weight:bold">return</span> futures;
+                    }
+                    <span style="color:#fff;font-weight:bold">long</span> now = System.<span style="color:#007f7f">nanoTime</span>();
+                    nanos -= now - lastTime;
+                    lastTime = now;
+                }
+            }
+            done = <span style="color:#fff;font-weight:bold">true</span>;
+            <span style="color:#fff;font-weight:bold">return</span> futures;
+        } <span style="color:#fff;font-weight:bold">finally</span> {
+            <span style="color:#fff;font-weight:bold">if</span> (!done)
+                <span style="color:#fff;font-weight:bold">for</span> (Future&lt;T&gt; f : futures)
+                    f.<span style="color:#007f7f">cancel</span>(<span style="color:#fff;font-weight:bold">true</span>);
+        }
+    }
+
+}
+</code></pre></div><p>到这里，我们发现，这个抽象类包装了一些基本的方法，可是像 submit、invokeAny、invokeAll 等方法，它们都没有真正开启线程来执行任务，它们都只是在方法内部调用了 execute 方法，所以最重要的 execute(Runnable runnable) 方法还没出现，需要等具体执行器来实现这个最重要的部分，这里我们要说的就是 ThreadPoolExecutor 类了。</p>
+<blockquote>
+<p>鉴于本文的篇幅，我觉得看到这里的读者应该已经不多了，大家都习惯了快餐文化。我写的每篇文章都力求让读者可以通过我的一篇文章而对相关内容有全面的了解，所以篇幅不免长了些。</p>
+</blockquote>
+<h2 id="threadpoolexecutor">ThreadPoolExecutor</h2>
+<p>ThreadPoolExecutor 是 JDK 中的线程池实现，这个类实现了一个线程池需要的各个方法，它实现了任务提交、线程管理、监控等等方法。</p>
+<p>我们可以基于它来进行业务上的扩展，以实现我们需要的其他功能，比如实现定时任务的类 ScheduledThreadPoolExecutor 就继承自 ThreadPoolExecutor。当然，这不是本文关注的重点，下面，还是赶紧进行源码分析吧。</p>
+<p>首先，我们来看看线程池实现中的几个概念和处理流程。</p>
+<p>我们先回顾下提交任务的几个方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> Future&lt;?&gt; submit(Runnable task) {
+    <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+    RunnableFuture&lt;Void&gt; ftask = newTaskFor(task, <span style="color:#fff;font-weight:bold">null</span>);
+    execute(ftask);
+    <span style="color:#fff;font-weight:bold">return</span> ftask;
+}
+<span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; Future&lt;T&gt; submit(Runnable task, T result) {
+    <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+    RunnableFuture&lt;T&gt; ftask = newTaskFor(task, result);
+    execute(ftask);
+    <span style="color:#fff;font-weight:bold">return</span> ftask;
+}
+<span style="color:#fff;font-weight:bold">public</span> &lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task) {
+    <span style="color:#fff;font-weight:bold">if</span> (task == <span style="color:#fff;font-weight:bold">null</span>) <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+    RunnableFuture&lt;T&gt; ftask = newTaskFor(task);
+    execute(ftask);
+    <span style="color:#fff;font-weight:bold">return</span> ftask;
+}
+</code></pre></div><p>一个最基本的概念是，submit 方法中，参数是 Runnable 类型（也有Callable 类型），这个参数不是用于 new Thread(<strong>runnable</strong>).start() 中的，此处的这个参数不是用于启动线程的，这里指的是<strong>任务</strong>，任务要做的事情是 run() 方法里面定义的或 Callable 中的 call() 方法里面定义的。</p>
+<p>初学者往往会搞混这个，因为 Runnable 总是在各个地方出现，经常把一个 Runnable 包到另一个 Runnable 中。请把它想象成有个 Task 接口，这个接口里面有一个 run() 方法。</p>
+<p>我们回过神来继续往下看，我画了一个简单的示意图来描述线程池中的一些主要的构件：</p>
+<p><img src="http://img.zhouyi.tech/note/pool-1-7a08058075e44ffa9747f91c1c1d7578.png" alt="pool-1"></p>
+<p>当然，上图没有考虑队列是否有界，提交任务时队列满了怎么办？什么情况下会创建新的线程？提交任务时线程池满了怎么办？空闲线程怎么关掉？这些问题下面我们会一一解决。</p>
+<p>我们经常会使用 <code>Executors</code> 这个工具类来快速构造一个线程池，对于初学者而言，这种工具类是很有用的，开发者不需要关注太多的细节，只要知道自己需要一个线程池，仅仅提供必需的参数就可以了，其他参数都采用作者提供的默认值。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newFixedThreadPool(<span style="color:#fff;font-weight:bold">int</span> nThreads) {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.<span style="color:#007f7f">MILLISECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> LinkedBlockingQueue&lt;Runnable&gt;());
+}
+<span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newCachedThreadPool() {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(0, Integer.<span style="color:#007f7f">MAX_VALUE</span>,
+                                  60L, TimeUnit.<span style="color:#007f7f">SECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> SynchronousQueue&lt;Runnable&gt;());
+}
+</code></pre></div><p>这里先不说有什么区别，它们最终都会导向这个构造方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java">    <span style="color:#fff;font-weight:bold">public</span> ThreadPoolExecutor(<span style="color:#fff;font-weight:bold">int</span> corePoolSize,
+                              <span style="color:#fff;font-weight:bold">int</span> maximumPoolSize,
+                              <span style="color:#fff;font-weight:bold">long</span> keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue&lt;Runnable&gt; workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler) {
+        <span style="color:#fff;font-weight:bold">if</span> (corePoolSize &lt; 0 ||
+            maximumPoolSize &lt;= 0 ||
+            maximumPoolSize &lt; corePoolSize ||
+            keepAliveTime &lt; 0)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> IllegalArgumentException();
+        <span style="color:#007f7f">// 这几个参数都是必须要有的
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (workQueue == <span style="color:#fff;font-weight:bold">null</span> || threadFactory == <span style="color:#fff;font-weight:bold">null</span> || handler == <span style="color:#fff;font-weight:bold">null</span>)
+            <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+      
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">corePoolSize</span> = corePoolSize;
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">maximumPoolSize</span> = maximumPoolSize;
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">workQueue</span> = workQueue;
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">keepAliveTime</span> = unit.<span style="color:#007f7f">toNanos</span>(keepAliveTime);
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">threadFactory</span> = threadFactory;
+        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">handler</span> = handler;
+    }
+</code></pre></div><p>基本上，上面的构造方法中列出了我们最需要关心的几个属性了，下面逐个介绍下构造方法中出现的这几个属性：</p>
+<ul>
+<li>
+<p>corePoolSize</p>
+<blockquote>
+<p>核心线程数，不要抠字眼，反正先记着有这么个属性就可以了。</p>
+</blockquote>
+</li>
+<li>
+<p>maximumPoolSize</p>
+<blockquote>
+<p>最大线程数，线程池允许创建的最大线程数。</p>
+</blockquote>
+</li>
+<li>
+<p>workQueue</p>
+<blockquote>
+<p>任务队列，BlockingQueue 接口的某个实现（常使用 ArrayBlockingQueue 和 LinkedBlockingQueue）。</p>
+</blockquote>
+</li>
+<li>
+<p>keepAliveTime</p>
+<blockquote>
+<p>空闲线程的保活时间，如果某线程的空闲时间超过这个值都没有任务给它做，那么可以被关闭了。注意这个值并不会对所有线程起作用，如果线程池中的线程数少于等于核心线程数 corePoolSize，那么这些线程不会因为空闲太长时间而被关闭，当然，也可以通过调用 <code>allowCoreThreadTimeOut(true)</code>使核心线程数内的线程也可以被回收。</p>
+</blockquote>
+</li>
+<li>
+<p>threadFactory</p>
+<blockquote>
+<p>用于生成线程，一般我们可以用默认的就可以了。通常，我们可以通过它将我们的线程的名字设置得比较可读一些，如 Message-Thread-1， Message-Thread-2 类似这样。</p>
+</blockquote>
+</li>
+<li>
+<p>handler：</p>
+<blockquote>
+<p>当线程池已经满了，但是又有新的任务提交的时候，该采取什么策略由这个来指定。有几种方式可供选择，像抛出异常、直接拒绝然后返回等，也可以自己实现相应的接口实现自己的逻辑，这个之后再说。</p>
+</blockquote>
+</li>
+</ul>
+<p>除了上面几个属性外，我们再看看其他重要的属性。</p>
+<p>Doug Lea 采用一个 32 位的整数来存放线程池的状态和当前池中的线程数，其中高 3 位用于存放线程池状态，低 29 位表示线程数（即使只有 29 位，也已经不小了，大概 5 亿多，现在还没有哪个机器能起这么多线程的吧）。我们知道，java 语言在整数编码上是统一的，都是采用补码的形式，下面是简单的移位操作和布尔操作，都是挺简单的。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">final</span> AtomicInteger ctl = <span style="color:#fff;font-weight:bold">new</span> AtomicInteger(ctlOf(RUNNING, 0));
+
+<span style="color:#007f7f">// 这里 COUNT_BITS 设置为 29(32-3)，意味着前三位用于存放线程状态，后29位用于存放线程数
+</span><span style="color:#007f7f">// 很多初学者很喜欢在自己的代码中写很多 29 这种数字，或者某个特殊的字符串，然后分布在各个地方，这是非常糟糕的
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> COUNT_BITS = Integer.<span style="color:#007f7f">SIZE</span> - 3;
+
+<span style="color:#007f7f">// 000 11111111111111111111111111111
+</span><span style="color:#007f7f">// 这里得到的是 29 个 1，也就是说线程池的最大线程数是 2^29-1=536870911
+</span><span style="color:#007f7f">// 以我们现在计算机的实际情况，这个数量还是够用的
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> CAPACITY   = (1 &lt;&lt; COUNT_BITS) - 1;
+
+<span style="color:#007f7f">// 我们说了，线程池的状态存放在高 3 位中
+</span><span style="color:#007f7f">// 运算结果为 111跟29个0：111 00000000000000000000000000000
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> RUNNING    = -1 &lt;&lt; COUNT_BITS;
+<span style="color:#007f7f">// 000 00000000000000000000000000000
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> SHUTDOWN   =  0 &lt;&lt; COUNT_BITS;
+<span style="color:#007f7f">// 001 00000000000000000000000000000
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> STOP       =  1 &lt;&lt; COUNT_BITS;
+<span style="color:#007f7f">// 010 00000000000000000000000000000
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> TIDYING    =  2 &lt;&lt; COUNT_BITS;
+<span style="color:#007f7f">// 011 00000000000000000000000000000
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">int</span> TERMINATED =  3 &lt;&lt; COUNT_BITS;
+
+<span style="color:#007f7f">// 将整数 c 的低 29 位修改为 0，就得到了线程池的状态
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">int</span> runStateOf(<span style="color:#fff;font-weight:bold">int</span> c)     { <span style="color:#fff;font-weight:bold">return</span> c &amp; ~CAPACITY; }
+<span style="color:#007f7f">// 将整数 c 的高 3 为修改为 0，就得到了线程池中的线程数
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">int</span> workerCountOf(<span style="color:#fff;font-weight:bold">int</span> c)  { <span style="color:#fff;font-weight:bold">return</span> c &amp; CAPACITY; }
+
+<span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">int</span> ctlOf(<span style="color:#fff;font-weight:bold">int</span> rs, <span style="color:#fff;font-weight:bold">int</span> wc) { <span style="color:#fff;font-weight:bold">return</span> rs | wc; }
+
+<span style="color:#007f7f">/*
+</span><span style="color:#007f7f"> * Bit field accessors that don&#39;t require unpacking ctl.
+</span><span style="color:#007f7f"> * These depend on the bit layout and on workerCount being never negative.
+</span><span style="color:#007f7f"> */</span>
+
+<span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">boolean</span> runStateLessThan(<span style="color:#fff;font-weight:bold">int</span> c, <span style="color:#fff;font-weight:bold">int</span> s) {
+    <span style="color:#fff;font-weight:bold">return</span> c &lt; s;
+}
+
+<span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">boolean</span> runStateAtLeast(<span style="color:#fff;font-weight:bold">int</span> c, <span style="color:#fff;font-weight:bold">int</span> s) {
+    <span style="color:#fff;font-weight:bold">return</span> c &gt;= s;
+}
+
+<span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">boolean</span> isRunning(<span style="color:#fff;font-weight:bold">int</span> c) {
+    <span style="color:#fff;font-weight:bold">return</span> c &lt; SHUTDOWN;
+}
+</code></pre></div><p>上面就是对一个整数的简单的位操作，几个操作方法将会在后面的源码中一直出现，所以读者最好把方法名字和其代表的功能记住，看源码的时候也就不需要来来回回翻了。</p>
+<p>在这里，介绍下线程池中的各个状态和状态变化的转换过程：</p>
+<ul>
+<li>RUNNING：这个没什么好说的，这是最正常的状态：接受新的任务，处理等待队列中的任务</li>
+<li>SHUTDOWN：不接受新的任务提交，但是会继续处理等待队列中的任务</li>
+<li>STOP：不接受新的任务提交，不再处理等待队列中的任务，中断正在执行任务的线程</li>
+<li>TIDYING：所有的任务都销毁了，workCount 为 0。线程池的状态在转换为 TIDYING 状态时，会执行钩子方法 terminated()</li>
+<li>TERMINATED：terminated() 方法结束后，线程池的状态就会变成这个</li>
+</ul>
+<blockquote>
+<p>RUNNING 定义为 -1，SHUTDOWN 定义为 0，其他的都比 0 大，所以等于 0 的时候不能提交任务，大于 0 的话，连正在执行的任务也需要中断。</p>
+</blockquote>
+<p>看了这几种状态的介绍，读者大体也可以猜到十之八九的状态转换了，各个状态的转换过程有以下几种：</p>
+<ul>
+<li>RUNNING -&gt; SHUTDOWN：当调用了 shutdown() 后，会发生这个状态转换，这也是最重要的</li>
+<li>(RUNNING or SHUTDOWN) -&gt; STOP：当调用 shutdownNow() 后，会发生这个状态转换，这下要清楚 shutDown() 和 shutDownNow() 的区别了</li>
+<li>SHUTDOWN -&gt; TIDYING：当任务队列和线程池都清空后，会由 SHUTDOWN 转换为 TIDYING</li>
+<li>STOP -&gt; TIDYING：当任务队列清空后，发生这个转换</li>
+<li>TIDYING -&gt; TERMINATED：这个前面说了，当 terminated() 方法结束后</li>
+</ul>
+<p>上面的几个记住核心的就可以了，尤其第一个和第二个。</p>
+<p>另外，我们还要看看一个内部类 Worker，因为 Doug Lea 把线程池中的线程包装成了一个个 Worker，翻译成工人，就是线程池中做任务的线程。所以到这里，我们知道<strong>任务是 Runnable（内部变量名叫 task 或 command），线程是 Worker</strong>。</p>
+<p>Worker 这里又用到了抽象类 AbstractQueuedSynchronizer。题外话，AQS 在并发中真的是到处出现，而且非常容易使用，写少量的代码就能实现自己需要的同步方式（对 AQS 源码感兴趣的读者请参看我之前写的几篇文章）。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">class</span> Worker
+    <span style="color:#fff;font-weight:bold">extends</span> AbstractQueuedSynchronizer
+    <span style="color:#fff;font-weight:bold">implements</span> Runnable
+{
+    <span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">long</span> serialVersionUID = 6138294804551838833L;
+
+    <span style="color:#007f7f">// 这个是真正的线程，任务靠你啦
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">final</span> Thread thread;
+    
+    <span style="color:#007f7f">// 前面说了，这里的 Runnable 是任务。为什么叫 firstTask？因为在创建线程的时候，如果同时指定了
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 这个线程起来以后需要执行的第一个任务，那么第一个任务就是存放在这里的(线程可不止执行这一个任务)
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 当然了，也可以为 null，这样线程起来了，自己到任务队列（BlockingQueue）中取任务（getTask 方法）就行了
+</span><span style="color:#007f7f"></span>    Runnable firstTask;
+    
+    <span style="color:#007f7f">// 用于存放此线程完成的任务数，注意了，这里用了 volatile，保证可见性
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">volatile</span> <span style="color:#fff;font-weight:bold">long</span> completedTasks;
+
+	<span style="color:#007f7f">// Worker 只有这一个构造方法，传入 firstTask，也可以传 null
+</span><span style="color:#007f7f"></span>    Worker(Runnable firstTask) {
+        setState(-1); <span style="color:#007f7f">// inhibit interrupts until runWorker
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">firstTask</span> = firstTask;
+        <span style="color:#007f7f">// 调用 ThreadFactory 来创建一个新的线程
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">thread</span> = getThreadFactory().<span style="color:#007f7f">newThread</span>(<span style="color:#fff;font-weight:bold">this</span>);
+    }
+
+    <span style="color:#007f7f">// 这里调用了外部类的 runWorker 方法
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> run() {
+        runWorker(<span style="color:#fff;font-weight:bold">this</span>);
+    }
+
+	...<span style="color:#007f7f">// 其他几个方法没什么好看的，就是用 AQS 操作，来获取这个线程的执行权，用了独占锁
+</span><span style="color:#007f7f"></span>}
+</code></pre></div><p>前面虽然啰嗦，但是简单。有了上面的这些基础后，我们终于可以看看 ThreadPoolExecutor 的 execute 方法了，前面源码分析的时候也说了，各种方法都最终依赖于 execute 方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> execute(Runnable command) {
+    <span style="color:#fff;font-weight:bold">if</span> (command == <span style="color:#fff;font-weight:bold">null</span>)
+        <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+  
+    <span style="color:#007f7f">// 前面说的那个表示 “线程池状态” 和 “线程数” 的整数
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+  
+    <span style="color:#007f7f">// 如果当前线程数少于核心线程数，那么直接添加一个 worker 来执行任务，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 创建一个新的线程，并把当前任务 command 作为这个线程的第一个任务(firstTask)
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">if</span> (workerCountOf(c) &lt; corePoolSize) {
+        <span style="color:#007f7f">// 添加任务成功，那么就结束了。提交任务嘛，线程池已经接受了这个任务，这个方法也就可以返回了
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 至于执行的结果，到时候会包装到 FutureTask 中。
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 返回 false 代表线程池不允许提交任务
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (addWorker(command, <span style="color:#fff;font-weight:bold">true</span>))
+            <span style="color:#fff;font-weight:bold">return</span>;
+        c = ctl.<span style="color:#007f7f">get</span>();
+    }
+    <span style="color:#007f7f">// 到这里说明，要么当前线程数大于等于核心线程数，要么刚刚 addWorker 失败了
+</span><span style="color:#007f7f"></span>  
+    <span style="color:#007f7f">// 如果线程池处于 RUNNING 状态，把这个任务添加到任务队列 workQueue 中
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">if</span> (isRunning(c) &amp;&amp; workQueue.<span style="color:#007f7f">offer</span>(command)) {
+        <span style="color:#007f7f">/* 这里面说的是，如果任务进入了 workQueue，我们是否需要开启新的线程
+</span><span style="color:#007f7f">         * 因为线程数在 [0, corePoolSize) 是无条件开启新的线程
+</span><span style="color:#007f7f">         * 如果线程数已经大于等于 corePoolSize，那么将任务添加到队列中，然后进到这里
+</span><span style="color:#007f7f">         */</span>
+        <span style="color:#fff;font-weight:bold">int</span> recheck = ctl.<span style="color:#007f7f">get</span>();
+        <span style="color:#007f7f">// 如果线程池已不处于 RUNNING 状态，那么移除已经入队的这个任务，并且执行拒绝策略
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (! isRunning(recheck) &amp;&amp; remove(command))
+            reject(command);
+        <span style="color:#007f7f">// 如果线程池还是 RUNNING 的，并且线程数为 0，那么开启新的线程
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 到这里，我们知道了，这块代码的真正意图是：担心任务提交到队列中了，但是线程都关闭了
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (workerCountOf(recheck) == 0)
+            addWorker(<span style="color:#fff;font-weight:bold">null</span>, <span style="color:#fff;font-weight:bold">false</span>);
+    }
+    <span style="color:#007f7f">// 如果 workQueue 队列满了，那么进入到这个分支
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 以 maximumPoolSize 为界创建新的 worker，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 如果失败，说明当前线程数已经达到 maximumPoolSize，执行拒绝策略
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (!addWorker(command, <span style="color:#fff;font-weight:bold">false</span>))
+        reject(command);
+}
+</code></pre></div><blockquote>
+<p>对创建线程的错误理解：如果线程数少于 corePoolSize，创建一个线程，如果线程数在 [corePoolSize, maximumPoolSize] 之间那么可以创建线程或复用空闲线程，keepAliveTime 对这个区间的线程有效。</p>
+<p>从上面的几个分支，我们就可以看出，上面的这段话是错误的。</p>
+</blockquote>
+<p>上面这些一时半会也不可能全部消化搞定，我们先继续往下吧，到时候再回头看几遍。</p>
+<p>这个方法非常重要 addWorker(Runnable firstTask, boolean core) 方法，我们看看它是怎么创建新的线程的：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// 第一个参数是准备提交给这个线程执行的任务，之前说了，可以为 null
+</span><span style="color:#007f7f">// 第二个参数为 true 代表使用核心线程数 corePoolSize 作为创建线程的界限，也就说创建这个线程的时候，
+</span><span style="color:#007f7f">// 		如果线程池中的线程总数已经达到 corePoolSize，那么不能响应这次创建线程的请求
+</span><span style="color:#007f7f">// 		如果是 false，代表使用最大线程数 maximumPoolSize 作为界限
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">boolean</span> addWorker(Runnable firstTask, <span style="color:#fff;font-weight:bold">boolean</span> core) {
+    retry:
+    <span style="color:#fff;font-weight:bold">for</span> (;;) {
+        <span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+        <span style="color:#fff;font-weight:bold">int</span> rs = runStateOf(c);
+
+        <span style="color:#007f7f">// 这个非常不好理解
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 如果线程池已关闭，并满足以下条件之一，那么不创建新的 worker：
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 1. 线程池状态大于 SHUTDOWN，其实也就是 STOP, TIDYING, 或 TERMINATED
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 2. firstTask != null
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 3. workQueue.isEmpty()
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 简单分析下：
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 还是状态控制的问题，当线程池处于 SHUTDOWN 的时候，不允许提交任务，但是已有的任务继续执行
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 当状态大于 SHUTDOWN 时，不允许提交任务，且中断正在执行的任务
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 多说一句：如果线程池处于 SHUTDOWN，但是 firstTask 为 null，且 workQueue 非空，那么是允许创建 worker 的
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 这是因为 SHUTDOWN 的语义：不允许提交新的任务，但是要把已经进入到 workQueue 的任务执行完，所以在满足条件的基础上，是允许创建新的 Worker 的
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (rs &gt;= SHUTDOWN &amp;&amp;
+            ! (rs == SHUTDOWN &amp;&amp;
+               firstTask == <span style="color:#fff;font-weight:bold">null</span> &amp;&amp;
+               ! workQueue.<span style="color:#007f7f">isEmpty</span>()))
+            <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">false</span>;
+
+        <span style="color:#fff;font-weight:bold">for</span> (;;) {
+            <span style="color:#fff;font-weight:bold">int</span> wc = workerCountOf(c);
+            <span style="color:#fff;font-weight:bold">if</span> (wc &gt;= CAPACITY ||
+                wc &gt;= (core ? corePoolSize : maximumPoolSize))
+                <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">false</span>;
+            <span style="color:#007f7f">// 如果成功，那么就是所有创建线程前的条件校验都满足了，准备创建线程执行任务了
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 这里失败的话，说明有其他线程也在尝试往线程池中创建线程
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (compareAndIncrementWorkerCount(c))
+                <span style="color:#fff;font-weight:bold">break</span> retry;
+            <span style="color:#007f7f">// 由于有并发，重新再读取一下 ctl
+</span><span style="color:#007f7f"></span>            c = ctl.<span style="color:#007f7f">get</span>();
+            <span style="color:#007f7f">// 正常如果是 CAS 失败的话，进到下一个里层的for循环就可以了
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 可是如果是因为其他线程的操作，导致线程池的状态发生了变更，如有其他线程关闭了这个线程池
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 那么需要回到外层的for循环
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (runStateOf(c) != rs)
+                <span style="color:#fff;font-weight:bold">continue</span> retry;
+            <span style="color:#007f7f">// else CAS failed due to workerCount change; retry inner loop
+</span><span style="color:#007f7f"></span>        }
+    }
+
+    <span style="color:#007f7f">/* 
+</span><span style="color:#007f7f">     * 到这里，我们认为在当前这个时刻，可以开始创建线程来执行任务了，
+</span><span style="color:#007f7f">     * 因为该校验的都校验了，至于以后会发生什么，那是以后的事，至少当前是满足条件的
+</span><span style="color:#007f7f">     */</span>
+  
+    <span style="color:#007f7f">// worker 是否已经启动
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> workerStarted = <span style="color:#fff;font-weight:bold">false</span>;
+    <span style="color:#007f7f">// 是否已将这个 worker 添加到 workers 这个 HashSet 中
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> workerAdded = <span style="color:#fff;font-weight:bold">false</span>;
+    Worker w = <span style="color:#fff;font-weight:bold">null</span>;
+    <span style="color:#fff;font-weight:bold">try</span> {
+        <span style="color:#fff;font-weight:bold">final</span> ReentrantLock mainLock = <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">mainLock</span>;
+        <span style="color:#007f7f">// 把 firstTask 传给 worker 的构造方法
+</span><span style="color:#007f7f"></span>        w = <span style="color:#fff;font-weight:bold">new</span> Worker(firstTask);
+        <span style="color:#007f7f">// 取 worker 中的线程对象，之前说了，Worker的构造方法会调用 ThreadFactory 来创建一个新的线程
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">final</span> Thread t = w.<span style="color:#007f7f">thread</span>;
+        <span style="color:#fff;font-weight:bold">if</span> (t != <span style="color:#fff;font-weight:bold">null</span>) {
+            <span style="color:#007f7f">// 这个是整个线程池的全局锁，持有这个锁才能让下面的操作“顺理成章”，
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 因为关闭一个线程池需要这个锁，至少我持有锁的期间，线程池不会被关闭
+</span><span style="color:#007f7f"></span>            mainLock.<span style="color:#007f7f">lock</span>();
+            <span style="color:#fff;font-weight:bold">try</span> {
+
+                <span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+                <span style="color:#fff;font-weight:bold">int</span> rs = runStateOf(c);
+
+                <span style="color:#007f7f">// 小于 SHUTTDOWN 那就是 RUNNING，这个自不必说，是最正常的情况
+</span><span style="color:#007f7f"></span>                <span style="color:#007f7f">// 如果等于 SHUTDOWN，前面说了，不接受新的任务，但是会继续执行等待队列中的任务
+</span><span style="color:#007f7f"></span>                <span style="color:#fff;font-weight:bold">if</span> (rs &lt; SHUTDOWN ||
+                    (rs == SHUTDOWN &amp;&amp; firstTask == <span style="color:#fff;font-weight:bold">null</span>)) {
+                    <span style="color:#007f7f">// worker 里面的 thread 可不能是已经启动的
+</span><span style="color:#007f7f"></span>                    <span style="color:#fff;font-weight:bold">if</span> (t.<span style="color:#007f7f">isAlive</span>())
+                        <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> IllegalThreadStateException();
+                    <span style="color:#007f7f">// 加到 workers 这个 HashSet 中
+</span><span style="color:#007f7f"></span>                    workers.<span style="color:#007f7f">add</span>(w);
+                    <span style="color:#fff;font-weight:bold">int</span> s = workers.<span style="color:#007f7f">size</span>();
+                    <span style="color:#007f7f">// largestPoolSize 用于记录 workers 中的个数的最大值
+</span><span style="color:#007f7f"></span>                    <span style="color:#007f7f">// 因为 workers 是不断增加减少的，通过这个值可以知道线程池的大小曾经达到的最大值
+</span><span style="color:#007f7f"></span>                    <span style="color:#fff;font-weight:bold">if</span> (s &gt; largestPoolSize)
+                        largestPoolSize = s;
+                    workerAdded = <span style="color:#fff;font-weight:bold">true</span>;
+                }
+            } <span style="color:#fff;font-weight:bold">finally</span> {
+                mainLock.<span style="color:#007f7f">unlock</span>();
+            }
+            <span style="color:#007f7f">// 添加成功的话，启动这个线程
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (workerAdded) {
+                <span style="color:#007f7f">// 启动线程
+</span><span style="color:#007f7f"></span>                t.<span style="color:#007f7f">start</span>();
+                workerStarted = <span style="color:#fff;font-weight:bold">true</span>;
+            }
+        }
+    } <span style="color:#fff;font-weight:bold">finally</span> {
+        <span style="color:#007f7f">// 如果线程没有启动，需要做一些清理工作，如前面 workCount 加了 1，将其减掉
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (! workerStarted)
+            addWorkerFailed(w);
+    }
+    <span style="color:#007f7f">// 返回线程是否启动成功
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">return</span> workerStarted;
+}
+</code></pre></div><p>简单看下 addWorkFailed 的处理：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// workers 中删除掉相应的 worker
+</span><span style="color:#007f7f">// workCount 减 1
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> <span style="color:#fff;font-weight:bold">void</span> addWorkerFailed(Worker w) {
+    <span style="color:#fff;font-weight:bold">final</span> ReentrantLock mainLock = <span style="color:#fff;font-weight:bold">this</span>.<span style="color:#007f7f">mainLock</span>;
+    mainLock.<span style="color:#007f7f">lock</span>();
+    <span style="color:#fff;font-weight:bold">try</span> {
+        <span style="color:#fff;font-weight:bold">if</span> (w != <span style="color:#fff;font-weight:bold">null</span>)
+            workers.<span style="color:#007f7f">remove</span>(w);
+        decrementWorkerCount();
+        <span style="color:#007f7f">// rechecks for termination, in case the existence of this worker was holding up termination
+</span><span style="color:#007f7f"></span>        tryTerminate();
+    } <span style="color:#fff;font-weight:bold">finally</span> {
+        mainLock.<span style="color:#007f7f">unlock</span>();
+    }
+}
+</code></pre></div><p>回过头来，继续往下走。我们知道，worker 中的线程 start 后，其 run 方法会调用 runWorker 方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// Worker 类的 run() 方法
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> run() {
+    runWorker(<span style="color:#fff;font-weight:bold">this</span>);
+}
+</code></pre></div><p>继续往下看 runWorker 方法：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// 此方法由 worker 线程启动后调用，这里用一个 while 循环来不断地从等待队列中获取任务并执行
+</span><span style="color:#007f7f">// 前面说了，worker 在初始化的时候，可以指定 firstTask，那么第一个任务也就可以不需要从队列中获取
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">void</span> runWorker(Worker w) {
+    <span style="color:#007f7f">// 
+</span><span style="color:#007f7f"></span>    Thread wt = Thread.<span style="color:#007f7f">currentThread</span>();
+    <span style="color:#007f7f">// 该线程的第一个任务(如果有的话)
+</span><span style="color:#007f7f"></span>    Runnable task = w.<span style="color:#007f7f">firstTask</span>;
+    w.<span style="color:#007f7f">firstTask</span> = <span style="color:#fff;font-weight:bold">null</span>;
+    w.<span style="color:#007f7f">unlock</span>(); <span style="color:#007f7f">// allow interrupts
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">boolean</span> completedAbruptly = <span style="color:#fff;font-weight:bold">true</span>;
+    <span style="color:#fff;font-weight:bold">try</span> {
+        <span style="color:#007f7f">// 循环调用 getTask 获取任务
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">while</span> (task != <span style="color:#fff;font-weight:bold">null</span> || (task = getTask()) != <span style="color:#fff;font-weight:bold">null</span>) {
+            w.<span style="color:#007f7f">lock</span>();          
+            <span style="color:#007f7f">// 如果线程池状态大于等于 STOP，那么意味着该线程也要中断
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> ((runStateAtLeast(ctl.<span style="color:#007f7f">get</span>(), STOP) ||
+                 (Thread.<span style="color:#007f7f">interrupted</span>() &amp;&amp;
+                  runStateAtLeast(ctl.<span style="color:#007f7f">get</span>(), STOP))) &amp;&amp;
+                !wt.<span style="color:#007f7f">isInterrupted</span>())
+                wt.<span style="color:#007f7f">interrupt</span>();
+            <span style="color:#fff;font-weight:bold">try</span> {
+                <span style="color:#007f7f">// 这是一个钩子方法，留给需要的子类实现
+</span><span style="color:#007f7f"></span>                beforeExecute(wt, task);
+                Throwable thrown = <span style="color:#fff;font-weight:bold">null</span>;
+                <span style="color:#fff;font-weight:bold">try</span> {
+                    <span style="color:#007f7f">// 到这里终于可以执行任务了
+</span><span style="color:#007f7f"></span>                    task.<span style="color:#007f7f">run</span>();
+                } <span style="color:#fff;font-weight:bold">catch</span> (RuntimeException x) {
+                    thrown = x; <span style="color:#fff;font-weight:bold">throw</span> x;
+                } <span style="color:#fff;font-weight:bold">catch</span> (Error x) {
+                    thrown = x; <span style="color:#fff;font-weight:bold">throw</span> x;
+                } <span style="color:#fff;font-weight:bold">catch</span> (Throwable x) {
+                    <span style="color:#007f7f">// 这里不允许抛出 Throwable，所以转换为 Error
+</span><span style="color:#007f7f"></span>                    thrown = x; <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> Error(x);
+                } <span style="color:#fff;font-weight:bold">finally</span> {
+                    <span style="color:#007f7f">// 也是一个钩子方法，将 task 和异常作为参数，留给需要的子类实现
+</span><span style="color:#007f7f"></span>                    afterExecute(task, thrown);
+                }
+            } <span style="color:#fff;font-weight:bold">finally</span> {
+                <span style="color:#007f7f">// 置空 task，准备 getTask 获取下一个任务
+</span><span style="color:#007f7f"></span>                task = <span style="color:#fff;font-weight:bold">null</span>;
+                <span style="color:#007f7f">// 累加完成的任务数
+</span><span style="color:#007f7f"></span>                w.<span style="color:#007f7f">completedTasks</span>++;
+                <span style="color:#007f7f">// 释放掉 worker 的独占锁
+</span><span style="color:#007f7f"></span>                w.<span style="color:#007f7f">unlock</span>();
+            }
+        }
+        completedAbruptly = <span style="color:#fff;font-weight:bold">false</span>;
+    } <span style="color:#fff;font-weight:bold">finally</span> {
+        <span style="color:#007f7f">// 如果到这里，需要执行线程关闭：
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 1. 说明 getTask 返回 null，也就是说，队列中已经没有任务需要执行了，执行关闭
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 2. 任务执行过程中发生了异常
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 第一种情况，已经在代码处理了将 workCount 减 1，这个在 getTask 方法分析中会说
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 第二种情况，workCount 没有进行处理，所以需要在 processWorkerExit 中处理
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 限于篇幅，我不准备分析这个方法了，感兴趣的读者请自行分析源码
+</span><span style="color:#007f7f"></span>        processWorkerExit(w, completedAbruptly);
+    }
+}
+</code></pre></div><p>我们看看 getTask() 是怎么获取任务的，这个方法写得真的很好，每一行都很简单，组合起来却所有的情况都想好了：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// 此方法有三种可能：
+</span><span style="color:#007f7f">// 1. 阻塞直到获取到任务返回。我们知道，默认 corePoolSize 之内的线程是不会被回收的，
+</span><span style="color:#007f7f">//      它们会一直等待任务
+</span><span style="color:#007f7f">// 2. 超时退出。keepAliveTime 起作用的时候，也就是如果这么多时间内都没有任务，那么应该执行关闭
+</span><span style="color:#007f7f">// 3. 如果发生了以下条件，此方法必须返回 null:
+</span><span style="color:#007f7f">//    - 池中有大于 maximumPoolSize 个 workers 存在(通过调用 setMaximumPoolSize 进行设置)
+</span><span style="color:#007f7f">//    - 线程池处于 SHUTDOWN，而且 workQueue 是空的，前面说了，这种不再接受新的任务
+</span><span style="color:#007f7f">//    - 线程池处于 STOP，不仅不接受新的线程，连 workQueue 中的线程也不再执行
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">private</span> Runnable getTask() {
+    <span style="color:#fff;font-weight:bold">boolean</span> timedOut = <span style="color:#fff;font-weight:bold">false</span>; <span style="color:#007f7f">// Did the last poll() time out?
+</span><span style="color:#007f7f"></span>  
+    retry:
+    <span style="color:#fff;font-weight:bold">for</span> (;;) {
+        <span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+        <span style="color:#fff;font-weight:bold">int</span> rs = runStateOf(c);
+        <span style="color:#007f7f">// 两种可能
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 1. rs == SHUTDOWN &amp;&amp; workQueue.isEmpty()
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 2. rs &gt;= STOP
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (rs &gt;= SHUTDOWN &amp;&amp; (rs &gt;= STOP || workQueue.<span style="color:#007f7f">isEmpty</span>())) {
+            <span style="color:#007f7f">// CAS 操作，减少工作线程数
+</span><span style="color:#007f7f"></span>            decrementWorkerCount();
+            <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">null</span>;
+        }
+
+        <span style="color:#fff;font-weight:bold">boolean</span> timed;      <span style="color:#007f7f">// Are workers subject to culling?
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">for</span> (;;) {
+            <span style="color:#fff;font-weight:bold">int</span> wc = workerCountOf(c);
+            <span style="color:#007f7f">// 允许核心线程数内的线程回收，或当前线程数超过了核心线程数，那么有可能发生超时关闭
+</span><span style="color:#007f7f"></span>            timed = allowCoreThreadTimeOut || wc &gt; corePoolSize;
+
+            <span style="color:#007f7f">// 这里 break，是为了不往下执行后一个 if (compareAndDecrementWorkerCount(c))
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 两个 if 一起看：如果当前线程数 wc &gt; maximumPoolSize，或者超时，都返回 null
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 那这里的问题来了，wc &gt; maximumPoolSize 的情况，为什么要返回 null？
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">//    换句话说，返回 null 意味着关闭线程。
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 那是因为有可能开发者调用了 setMaximumPoolSize() 将线程池的 maximumPoolSize 调小了，那么多余的 Worker 就需要被关闭
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (wc &lt;= maximumPoolSize &amp;&amp; ! (timedOut &amp;&amp; timed))
+                <span style="color:#fff;font-weight:bold">break</span>;
+            <span style="color:#fff;font-weight:bold">if</span> (compareAndDecrementWorkerCount(c))
+                <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">null</span>;
+            c = ctl.<span style="color:#007f7f">get</span>();  <span style="color:#007f7f">// Re-read ctl
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// compareAndDecrementWorkerCount(c) 失败，线程池中的线程数发生了改变
+</span><span style="color:#007f7f"></span>            <span style="color:#fff;font-weight:bold">if</span> (runStateOf(c) != rs)
+                <span style="color:#fff;font-weight:bold">continue</span> retry;
+            <span style="color:#007f7f">// else CAS failed due to workerCount change; retry inner loop
+</span><span style="color:#007f7f"></span>        }
+        <span style="color:#007f7f">// wc &lt;= maximumPoolSize 同时没有超时
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">try</span> {
+            <span style="color:#007f7f">// 到 workQueue 中获取任务
+</span><span style="color:#007f7f"></span>            Runnable r = timed ?
+                workQueue.<span style="color:#007f7f">poll</span>(keepAliveTime, TimeUnit.<span style="color:#007f7f">NANOSECONDS</span>) :
+                workQueue.<span style="color:#007f7f">take</span>();
+            <span style="color:#fff;font-weight:bold">if</span> (r != <span style="color:#fff;font-weight:bold">null</span>)
+                <span style="color:#fff;font-weight:bold">return</span> r;
+            timedOut = <span style="color:#fff;font-weight:bold">true</span>;
+        } <span style="color:#fff;font-weight:bold">catch</span> (InterruptedException retry) {
+            <span style="color:#007f7f">// 如果此 worker 发生了中断，采取的方案是重试
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 解释下为什么会发生中断，这个读者要去看 setMaximumPoolSize 方法。
+</span><span style="color:#007f7f"></span>          
+            <span style="color:#007f7f">// 如果开发者将 maximumPoolSize 调小了，导致其小于当前的 workers 数量，
+</span><span style="color:#007f7f"></span>            <span style="color:#007f7f">// 那么意味着超出的部分线程要被关闭。重新进入 for 循环，自然会有部分线程会返回 null
+</span><span style="color:#007f7f"></span>            timedOut = <span style="color:#fff;font-weight:bold">false</span>;
+        }
+    }
+}
+</code></pre></div><p>到这里，基本上也说完了整个流程，读者这个时候应该回到 execute(Runnable command) 方法，看看各个分支，我把代码贴过来一下：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> execute(Runnable command) {
+    <span style="color:#fff;font-weight:bold">if</span> (command == <span style="color:#fff;font-weight:bold">null</span>)
+        <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> NullPointerException();
+  
+    <span style="color:#007f7f">// 前面说的那个表示 “线程池状态” 和 “线程数” 的整数
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+  
+    <span style="color:#007f7f">// 如果当前线程数少于核心线程数，那么直接添加一个 worker 来执行任务，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 创建一个新的线程，并把当前任务 command 作为这个线程的第一个任务(firstTask)
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">if</span> (workerCountOf(c) &lt; corePoolSize) {
+        <span style="color:#007f7f">// 添加任务成功，那么就结束了。提交任务嘛，线程池已经接受了这个任务，这个方法也就可以返回了
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 至于执行的结果，到时候会包装到 FutureTask 中。
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 返回 false 代表线程池不允许提交任务
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (addWorker(command, <span style="color:#fff;font-weight:bold">true</span>))
+            <span style="color:#fff;font-weight:bold">return</span>;
+        c = ctl.<span style="color:#007f7f">get</span>();
+    }
+    <span style="color:#007f7f">// 到这里说明，要么当前线程数大于等于核心线程数，要么刚刚 addWorker 失败了
+</span><span style="color:#007f7f"></span>  
+    <span style="color:#007f7f">// 如果线程池处于 RUNNING 状态，把这个任务添加到任务队列 workQueue 中
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">if</span> (isRunning(c) &amp;&amp; workQueue.<span style="color:#007f7f">offer</span>(command)) {
+        <span style="color:#007f7f">/* 这里面说的是，如果任务进入了 workQueue，我们是否需要开启新的线程
+</span><span style="color:#007f7f">         * 因为线程数在 [0, corePoolSize) 是无条件开启新的线程
+</span><span style="color:#007f7f">         * 如果线程数已经大于等于 corePoolSize，那么将任务添加到队列中，然后进到这里
+</span><span style="color:#007f7f">         */</span>
+        <span style="color:#fff;font-weight:bold">int</span> recheck = ctl.<span style="color:#007f7f">get</span>();
+        <span style="color:#007f7f">// 如果线程池已不处于 RUNNING 状态，那么移除已经入队的这个任务，并且执行拒绝策略
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">if</span> (! isRunning(recheck) &amp;&amp; remove(command))
+            reject(command);
+        <span style="color:#007f7f">// 如果线程池还是 RUNNING 的，并且线程数为 0，那么开启新的线程
+</span><span style="color:#007f7f"></span>        <span style="color:#007f7f">// 到这里，我们知道了，这块代码的真正意图是：担心任务提交到队列中了，但是线程都关闭了
+</span><span style="color:#007f7f"></span>        <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (workerCountOf(recheck) == 0)
+            addWorker(<span style="color:#fff;font-weight:bold">null</span>, <span style="color:#fff;font-weight:bold">false</span>);
+    }
+    <span style="color:#007f7f">// 如果 workQueue 队列满了，那么进入到这个分支
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 以 maximumPoolSize 为界创建新的 worker，
+</span><span style="color:#007f7f"></span>    <span style="color:#007f7f">// 如果失败，说明当前线程数已经达到 maximumPoolSize，执行拒绝策略
+</span><span style="color:#007f7f"></span>    <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (!addWorker(command, <span style="color:#fff;font-weight:bold">false</span>))
+        reject(command);
+}
+</code></pre></div><p>上面各个分支中，有两种情况会调用 reject(command) 来处理任务，因为按照正常的流程，线程池此时不能接受这个任务，所以需要执行我们的拒绝策略。接下来，我们说一说 ThreadPoolExecutor 中的拒绝策略。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">final</span> <span style="color:#fff;font-weight:bold">void</span> reject(Runnable command) {
+    <span style="color:#007f7f">// 执行拒绝策略
+</span><span style="color:#007f7f"></span>    handler.<span style="color:#007f7f">rejectedExecution</span>(command, <span style="color:#fff;font-weight:bold">this</span>);
+}
+</code></pre></div><p>此处的 handler 我们需要在构造线程池的时候就传入这个参数，它是 RejectedExecutionHandler 的实例。</p>
+<p>RejectedExecutionHandler 在 ThreadPoolExecutor 中有四个已经定义好的实现类可供我们直接使用，当然，我们也可以实现自己的策略，不过一般也没有必要。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#007f7f">// 只要线程池没有被关闭，那么由提交任务的线程自己来执行这个任务。
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">class</span> CallerRunsPolicy <span style="color:#fff;font-weight:bold">implements</span> RejectedExecutionHandler {
+    <span style="color:#fff;font-weight:bold">public</span> CallerRunsPolicy() { }
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        <span style="color:#fff;font-weight:bold">if</span> (!e.<span style="color:#007f7f">isShutdown</span>()) {
+            r.<span style="color:#007f7f">run</span>();
+        }
+    }
+}
+
+<span style="color:#007f7f">// 不管怎样，直接抛出 RejectedExecutionException 异常
+</span><span style="color:#007f7f">// 这个是默认的策略，如果我们构造线程池的时候不传相应的 handler 的话，那就会指定使用这个
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">class</span> AbortPolicy <span style="color:#fff;font-weight:bold">implements</span> RejectedExecutionHandler {
+    <span style="color:#fff;font-weight:bold">public</span> AbortPolicy() { }
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        <span style="color:#fff;font-weight:bold">throw</span> <span style="color:#fff;font-weight:bold">new</span> RejectedExecutionException(<span style="color:#0ff;font-weight:bold">&#34;Task &#34;</span> + r.<span style="color:#007f7f">toString</span>() +
+                                             <span style="color:#0ff;font-weight:bold">&#34; rejected from &#34;</span> +
+                                             e.<span style="color:#007f7f">toString</span>());
+    }
+}
+
+<span style="color:#007f7f">// 不做任何处理，直接忽略掉这个任务
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">class</span> DiscardPolicy <span style="color:#fff;font-weight:bold">implements</span> RejectedExecutionHandler {
+    <span style="color:#fff;font-weight:bold">public</span> DiscardPolicy() { }
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    }
+}
+
+<span style="color:#007f7f">// 这个相对霸道一点，如果线程池没有被关闭的话，
+</span><span style="color:#007f7f">// 把队列队头的任务(也就是等待了最长时间的)直接扔掉，然后提交这个任务到等待队列中
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> <span style="color:#fff;font-weight:bold">class</span> DiscardOldestPolicy <span style="color:#fff;font-weight:bold">implements</span> RejectedExecutionHandler {
+    <span style="color:#fff;font-weight:bold">public</span> DiscardOldestPolicy() { }
+    <span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">void</span> rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+        <span style="color:#fff;font-weight:bold">if</span> (!e.<span style="color:#007f7f">isShutdown</span>()) {
+            e.<span style="color:#007f7f">getQueue</span>().<span style="color:#007f7f">poll</span>();
+            e.<span style="color:#007f7f">execute</span>(r);
+        }
+    }
+}
+</code></pre></div><p>到这里，ThreadPoolExecutor 的源码算是分析结束了。单纯从源码的难易程度来说，ThreadPoolExecutor 的源码还算是比较简单的，只是需要我们静下心来好好看看罢了。</p>
+<h2 id="executors">Executors</h2>
+<p>这节其实也不是分析 Executors 这个类，因为它仅仅是工具类，它的所有方法都是 static 的。</p>
+<ul>
+<li>生成一个固定大小的线程池：</li>
+</ul>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newFixedThreadPool(<span style="color:#fff;font-weight:bold">int</span> nThreads) {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.<span style="color:#007f7f">MILLISECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> LinkedBlockingQueue&lt;Runnable&gt;());
+}
+</code></pre></div><p>最大线程数设置为与核心线程数相等，此时 keepAliveTime 设置为 0（因为这里它是没用的，即使不为 0，线程池默认也不会回收 corePoolSize 内的线程），任务队列采用 LinkedBlockingQueue，无界队列。</p>
+<p>过程分析：刚开始，每提交一个任务都创建一个 worker，当 worker 的数量达到 nThreads 后，不再创建新的线程，而是把任务提交到 LinkedBlockingQueue 中，而且之后线程数始终为 nThreads。</p>
+<ul>
+<li>生成只有<strong>一个线程</strong>的固定线程池，这个更简单，和上面的一样，只要设置线程数为 1 就可以了：</li>
+</ul>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newSingleThreadExecutor() {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> FinalizableDelegatedExecutorService
+        (<span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.<span style="color:#007f7f">MILLISECONDS</span>,
+                                <span style="color:#fff;font-weight:bold">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));
+}
+</code></pre></div><ul>
+<li>生成一个需要的时候就创建新的线程，同时可以复用之前创建的线程（如果这个线程当前没有任务）的线程池：</li>
+</ul>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">public</span> <span style="color:#fff;font-weight:bold">static</span> ExecutorService newCachedThreadPool() {
+    <span style="color:#fff;font-weight:bold">return</span> <span style="color:#fff;font-weight:bold">new</span> ThreadPoolExecutor(0, Integer.<span style="color:#007f7f">MAX_VALUE</span>,
+                                  60L, TimeUnit.<span style="color:#007f7f">SECONDS</span>,
+                                  <span style="color:#fff;font-weight:bold">new</span> SynchronousQueue&lt;Runnable&gt;());
+}
+</code></pre></div><p>核心线程数为 0，最大线程数为 Integer.MAX_VALUE，keepAliveTime 为 60 秒，任务队列采用 SynchronousQueue。</p>
+<p>这种线程池对于任务可以比较快速地完成的情况有比较好的性能。如果线程空闲了 60 秒都没有任务，那么将关闭此线程并从线程池中移除。所以如果线程池空闲了很长时间也不会有问题，因为随着所有的线程都会被关闭，整个线程池不会占用任何的系统资源。</p>
+<p>过程分析：我把 execute 方法的主体黏贴过来，让大家看得明白些。鉴于 corePoolSize 是 0，那么提交任务的时候，直接将任务提交到队列中，由于采用了 SynchronousQueue，所以如果是第一个任务提交的时候，offer 方法肯定会返回 false，因为此时没有任何 worker 对这个任务进行接收，那么将进入到最后一个分支来创建第一个 worker。之后再提交任务的话，取决于是否有空闲下来的线程对任务进行接收，如果有，会进入到第二个 if 语句块中，否则就是和第一个任务一样，进到最后的 else if 分支创建新线程。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#fff;font-weight:bold">int</span> c = ctl.<span style="color:#007f7f">get</span>();
+<span style="color:#007f7f">// corePoolSize 为 0，所以不会进到这个 if 分支
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">if</span> (workerCountOf(c) &lt; corePoolSize) {
+    <span style="color:#fff;font-weight:bold">if</span> (addWorker(command, <span style="color:#fff;font-weight:bold">true</span>))
+        <span style="color:#fff;font-weight:bold">return</span>;
+    c = ctl.<span style="color:#007f7f">get</span>();
+}
+<span style="color:#007f7f">// offer 如果有空闲线程刚好可以接收此任务，那么返回 true，否则返回 false
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">if</span> (isRunning(c) &amp;&amp; workQueue.<span style="color:#007f7f">offer</span>(command)) {
+    <span style="color:#fff;font-weight:bold">int</span> recheck = ctl.<span style="color:#007f7f">get</span>();
+    <span style="color:#fff;font-weight:bold">if</span> (! isRunning(recheck) &amp;&amp; remove(command))
+        reject(command);
+    <span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (workerCountOf(recheck) == 0)
+        addWorker(<span style="color:#fff;font-weight:bold">null</span>, <span style="color:#fff;font-weight:bold">false</span>);
+}
+<span style="color:#fff;font-weight:bold">else</span> <span style="color:#fff;font-weight:bold">if</span> (!addWorker(command, <span style="color:#fff;font-weight:bold">false</span>))
+    reject(command);
+</code></pre></div><blockquote>
+<p>SynchronousQueue 是一个比较特殊的 BlockingQueue，其本身不储存任何元素，它有一个虚拟队列（或虚拟栈），不管读操作还是写操作，如果当前队列中存储的是与当前操作相同模式的线程，那么当前操作也进入队列中等待；如果是相反模式，则配对成功，从当前队列中取队头节点。具体的信息，可以看我的另一篇关于 BlockingQueue 的文章。</p>
+</blockquote>
+<h2 id="总结">总结</h2>
+<p>我一向不喜欢写总结，因为我把所有需要表达的都写在正文中了，写小篇幅的总结并不能真正将话说清楚，本文的总结部分为准备面试的读者而写，希望能帮到面试者或者没有足够的时间看完全文的读者。</p>
+<ol>
+<li>
+<p>java 线程池有哪些关键属性？</p>
+<blockquote>
+<p>corePoolSize，maximumPoolSize，workQueue，keepAliveTime，rejectedExecutionHandler</p>
+<p>corePoolSize 到 maximumPoolSize 之间的线程会被回收，当然 corePoolSize 的线程也可以通过设置而得到回收（allowCoreThreadTimeOut(true)）。</p>
+<p>workQueue 用于存放任务，添加任务的时候，如果当前线程数超过了 corePoolSize，那么往该队列中插入任务，线程池中的线程会负责到队列中拉取任务。</p>
+<p>keepAliveTime 用于设置空闲时间，如果线程数超出了 corePoolSize，并且有些线程的空闲时间超过了这个值，会执行关闭这些线程的操作</p>
+<p>rejectedExecutionHandler 用于处理当线程池不能执行此任务时的情况，默认有<strong>抛出 RejectedExecutionException 异常</strong>、<strong>忽略任务</strong>、<strong>使用提交任务的线程来执行此任务</strong>和<strong>将队列中等待最久的任务删除，然后提交此任务</strong>这四种策略，默认为抛出异常。</p>
+</blockquote>
+</li>
+<li>
+<p>说说线程池中的线程创建时机？</p>
+<blockquote>
+<ol>
+<li>如果当前线程数少于 corePoolSize，那么提交任务的时候创建一个新的线程，并由这个线程执行这个任务；</li>
+<li>如果当前线程数已经达到 corePoolSize，那么将提交的任务添加到队列中，等待线程池中的线程去队列中取任务；</li>
+<li>如果队列已满，那么创建新的线程来执行任务，需要保证池中的线程数不会超过 maximumPoolSize，如果此时线程数超过了 maximumPoolSize，那么执行拒绝策略。</li>
+</ol>
+</blockquote>
+<p>* 注意：如果将队列设置为无界队列，那么线程数达到 corePoolSize 后，其实线程数就不会再增长了。因为后面的任务直接往队列塞就行了，此时 maximumPoolSize 参数就没有什么意义。</p>
+</li>
+<li>
+<p>Executors.newFixedThreadPool(…) 和 Executors.newCachedThreadPool() 构造出来的线程池有什么差别？</p>
+<blockquote>
+<p>细说太长，往上滑一点点，在 Executors 的小节进行了详尽的描述。</p>
+</blockquote>
+</li>
+<li>
+<p>任务执行过程中发生异常怎么处理？</p>
+<blockquote>
+<p>如果某个任务执行出现异常，那么执行任务的线程会被关闭，而不是继续接收其他任务。然后会启动一个新的线程来代替它。</p>
+</blockquote>
+</li>
+<li>
+<p>什么时候会执行拒绝策略？</p>
+<blockquote>
+<ol>
+<li>workers 的数量达到了 corePoolSize（任务此时需要进入任务队列），任务入队成功，与此同时线程池被关闭了，而且关闭线程池并没有将这个任务出队，那么执行拒绝策略。这里说的是非常边界的问题，入队和关闭线程池并发执行，读者仔细看看 execute 方法是怎么进到第一个 reject(command) 里面的。</li>
+<li>workers 的数量大于等于 corePoolSize，将任务加入到任务队列，可是队列满了，任务入队失败，那么准备开启新的线程，可是线程数已经达到 maximumPoolSize，那么执行拒绝策略。</li>
+</ol>
+</blockquote>
+</li>
+</ol>
+<p>因为本文实在太长了，所以我没有说执行结果是怎么获取的，也没有说关闭线程池相关的部分，这个就留给读者吧。</p>
+<p>本文篇幅是有点长，如果读者发现什么不对的地方，或者有需要补充的地方，请不吝提出，谢谢。</p>
+<p>（全文完）</p>
+<p><strong>著作权归原作者所有，<a href="https://www.javadoop.com/post/java-thread-pool">原文链接</a>。</strong></p>
+
+  </article>
+</section>
+
+
+</main>
+
+<amp-analytics type="googleanalytics">
+    <script type="application/json">
+        {
+            "vars": {
+                "account": "UA-154678195-1"
+            },
+            "triggers": {"trackEvent":{"on":"click","request":"event","selector":"body","vars":{"eventAction":"click","eventCategory":"body-click"}},"trackPageview":{"on":"visible","request":"pageview"}}
+        }
+    </script>
+</amp-analytics>
+
+</body>
+
+</html>

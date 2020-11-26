@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+
+
+
+<html amp lang="zh-cn" class="no-js">
+<head>
+  <title>Spring Boot 集成 Liquibase</title>
+  <meta charset="utf-8">
+
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script><script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+
+
+
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/spring-boot-%E9%9B%86%E6%88%90-liquibase/">
+
+  <link rel="icon" href="https://www.zhouyi.tech/favicon.png" type="image/png" sizes="144x144">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+
+  <meta name="theme-color" content="#000000" />
+
+  
+<script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "技术学习之路",
+    
+    "url": "https:\/\/www.zhouyi.tech"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/www.zhouyi.tech"
+  
+  
+  
+  
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position":  1 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  3 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/",
+          "name": "amp"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  4 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/",
+          "name": "archives"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  5 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/spring-boot-%E9%9B%86%E6%88%90-liquibase\/",
+          "name": "spring-boot-%E9%9B%86%E6%88%90-liquibase"
+        }
+    }]
+}
+</script>
+
+
+
+
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <style amp-custom>
+        /**
+* stylesheet.html
+* ---------------
+* This is the stylesheet that gets injected as a fallback if no layouts/partials/stylesheet.html file is available
+* in your project file.
+*
+* For further details, please have a look at:
+* https://gohugo-amp.gohugohq.com/install/
+*
+**/
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px
+dotted}b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em
+0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em
+40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html
+input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html
+input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px
+solid silver;margin:0 2px;padding:.35em .625em
+.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}td,th{padding:0}*{box-sizing:border-box}button,input,select,textarea{font:13px/1.4
+Helvetica,arial,freesans,clean,sans-serif}a{color:#4183c4;text-decoration:none}a:active,a:focus,a:hover{text-decoration:underline}.rule,hr{height:0;margin:15px
+0;overflow:hidden;background:transparent;border:0;border-bottom:1px solid
+#ddd}.rule:after,.rule:before,hr:after,hr:before{display:table;content:""}.rule:after,hr:after{clear:both}fieldset{padding:0;margin:0;border:0}label{font-size:13px;font-weight:700}#adv_code_search
+.search-page-label,input[type=email],input[type=number],input[type=password],input[type=tel],input[type=text],input[type=url],textarea{min-height:34px;padding:7px
+8px;font-size:13px;color:#333;vertical-align:middle;background-color:#fff;background-repeat:no-repeat;background-position:100%;border:1px
+solid #ccc;border-radius:3px;outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.075)}#adv_code_search
+.focus.search-page-label,#adv_code_search .search-page-label:focus,.focused
+.drag-and-drop,input[type=email].focus,input[type=email]:focus,input[type=number].focus,input[type=number]:focus,input[type=password].focus,input[type=password]:focus,input[type=tel].focus,input[type=tel]:focus,input[type=text].focus,input[type=text]:focus,input[type=url].focus,input[type=url]:focus,textarea.focus,textarea:focus{border-color:#51a7e8;box-shadow:inset
+0 1px 2px rgba(0,0,0,.075),0 0 5px
+rgba(81,167,232,.5)}.input-contrast,input.input-contrast{background-color:#fafafa}.input-contrast:focus,input.input-contrast:focus{background-color:#fff}:-moz-placeholder,::-webkit-input-placeholder{color:#aaa}::-webkit-validation-bubble-message{font-size:12px;color:#fff;background:#9c2400;border:0;border-radius:3px;-webkit-box-shadow:1px
+1px 1px
+rgba(0,0,0,.1)}input::-webkit-validation-bubble-icon{display:none}::-webkit-validation-bubble-arrow{background-color:#9c2400;border:1px
+solid #9c2400;-webkit-box-shadow:1px 1px 1px
+rgba(0,0,0,.1)}.absent{color:#c00}.anchor{position:absolute;top:0;bottom:0;left:0;display:block;padding-right:6px;padding-left:30px;margin-left:-30px}.anchor:focus{outline:none}h1,h2,h3,h4,h5,h6{position:relative;margin-top:1em;margin-bottom:16px;font-weight:700;line-height:1.4}h1
+.octicon-link,h2 .octicon-link,h3 .octicon-link,h4 .octicon-link,h5 .octicon-link,h6
+.octicon-link{display:none;color:#000;vertical-align:middle}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor,h4:hover
+.anchor,h5:hover .anchor,h6:hover
+.anchor{height:1em;padding-left:8px;margin-left:-30px;line-height:1;text-decoration:none}h1:hover .anchor
+.octicon-link,h2:hover .anchor .octicon-link,h3:hover .anchor .octicon-link,h4:hover .anchor .octicon-link,h5:hover
+.anchor .octicon-link,h6:hover .anchor .octicon-link{display:inline-block}h1 code,h1 tt,h2 code,h2 tt,h3 code,h3 tt,h4
+code,h4 tt,h5 code,h5 tt,h6 code,h6
+tt{font-size:inherit}h1{font-size:2.25em;line-height:1.2}h1,h2{padding-bottom:.3em;border-bottom:1px solid
+#eee}h2{font-size:1.75em;line-height:1.225}h3{font-size:1.5em;line-height:1.43}h4{font-size:1.25em}h5,h6{font-size:1em}h6{color:#777}blockquote,dl,ol,p,pre,table,ul{margin-top:0;margin-bottom:16px}hr{height:4px;padding:0;margin:16px
+0;background-color:#e7e7e7;border:0 none}ol,ul{padding-left:2em}ol.no-list,ul.no-list{padding:0;list-style-type:none}ol
+ol,ol ul,ul ol,ul ul{margin-top:0;margin-bottom:0}li>p{margin-top:16px}dl,dl dt{padding:0}dl
+dt{margin-top:16px;font-size:1em;font-style:italic;font-weight:700}dl dd{padding:0
+16px;margin-bottom:16px}blockquote{padding:0 15px;color:#777;border-left:4px solid
+#ddd}blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}table
+th{font-weight:700}table td,table th{padding:6px 13px;border:1px solid #ddd}table
+tr{background-color:#fff;border-top:1px solid #ccc}table
+tr:nth-child(2n){background-color:#f8f8f8}img{max-width:100%;box-sizing:border-box}span.frame,span.frame>span{display:block;overflow:hidden}span.frame>span{float:left;width:auto;padding:7px;margin:13px
+0 0;border:1px solid #ddd}span.frame span img{display:block;float:left}span.frame span span{display:block;padding:5px 0
+0;clear:both;color:#333}span.align-center{display:block;overflow:hidden;clear:both}span.align-center>span{display:block;margin:13px
+auto 0;overflow:hidden;text-align:center}span.align-center span img{margin:0
+auto;text-align:center}span.align-right{display:block;overflow:hidden;clear:both}span.align-right>span{display:block;margin:13px
+0 0;overflow:hidden;text-align:right}span.align-right span
+img{margin:0;text-align:right}span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}span.float-left
+span{margin:13px 0
+0}span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}span.float-right>span{display:block;margin:13px
+auto
+0;overflow:hidden;text-align:right}code,tt{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}code:after,code:before,tt:after,tt:before{letter-spacing:-.2em;content:"\00a0"}code
+br,tt br{display:none}del
+code{text-decoration:inherit;vertical-align:text-top}pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.highlight{margin-bottom:16px}.highlight
+pre,pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.highlight
+pre{margin-bottom:0;word-break:normal}pre,pre code,pre tt{word-wrap:normal}pre code,pre
+tt{display:inline;max-width:none;padding:0;margin:0;overflow:initial;line-height:inherit;background-color:transparent;border:0}pre
+code:after,pre code:before,pre tt:after,pre
+tt:before{content:normal}abbr,address,article,aside,audio,b,blockquote,body,canvas,caption,cite,code,dd,del,details,dfn,div,dl,dt,em,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}nav
+ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent}ins{text-decoration:none}ins,mark{background-color:#ff9;color:#000}mark{font-style:italic;font-weight:700}del{text-decoration:line-through}abbr[title],dfn[title]{border-bottom:1px
+dotted;cursor:help}table{border-collapse:collapse;border-spacing:0}hr{display:block;height:1px;border:0;border-top:1px
+solid #ccc;margin:1em
+0;padding:0}input,select{vertical-align:middle}body{background-color:#fff;color:#123;font-size:14px;font-family:Helvetica
+Neue,Helvetica,Segoe UI,Arial,freesans,sans-serif}main{max-width:1180px;padding:30px;margin:0 auto}@media
+(min-width:900px){main h1+p{font-size:2em}}h1{font-weight:300;font-size:2em;line-height:1.4em;margin:.5em
+0;font-family:Georgia,serif;-webkit-transition:color .4s;transition:color
+.4s}h2{font-size:2em}h2,h3{font-weight:300;margin:30px
+0}h3{font-size:1.8em}h4{font-size:1.6em}h4,h5{font-weight:300}h5{font-size:1.2em}h6{font-weight:300;font-size:1em}p{line-height:1.4em;font-size:1.2em;margin:15px
+0}blockquote{border-left:5px solid
+#ff1d55;background-color:#ffe9ee;padding:1em;margin-bottom:1em}.lightbox{background-color:rgba(3,121,196,.4);min-height:100vh;min-width:100vw;padding:30px}code{font:12px
+Consolas,Liberation Mono,Menlo,Courier,monospace}p>code{color:#ff1d55}pre
+code{display:block;background-color:#f7f7f7;padding:15px;overflow:auto;color:#123;line-height:1.4em}a{color:#ff1d55;text-decoration:none;-webkit-transition:color
+.4s,background .4s;transition:color .4s,background .4s}a:hover{color:#e9003a}ol,ul{margin:7.5px;padding:7.5px 15px}ol
+li,ul li{margin:7.5px 15px}.doc-parameters{list-style-type:none;padding:0}.doc-parameters
+li{display:block;margin:0;margin-bottom:15px}.doc-parameters .example,.doc-parameters blockquote{border-left:5px solid
+#0379c4;background-color:#96d5fd;color:#123;line-height:1em;font-size:1em;padding:1em;margin:0}.doc-parameters
+.example{background-color:#c8e9fe}.doc-parameters
+.parameter{display:block;padding:1em;background-color:#0379c4;color:#fff;margin:0}.doc-parameters .parameter
+strong{display:inline-block;padding:0
+.5em;border-radius:.25em;line-height:2em;background-color:#025a92}hr{height:.25em;padding:0;margin:24px
+0;background-color:#f7f7f7;border:0}.teaser{display:-webkit-box;display:-ms-flexbox;display:flex;text-align:left;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.teaser
+aside{-ms-flex-preferred-size:60%;flex-basis:60%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;padding:30px}@media
+(max-width:700px){.teaser aside{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content{-ms-flex-preferred-size:40%;flex-basis:40%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;color:dimgray;font-size:12px}@media
+(max-width:700px){.teaser .content{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content.content-full{-ms-flex-preferred-size:100%;flex-basis:100%}.teaser .content
+h3{font-size:14px;text-transform:uppercase;font-weight:600;color:#123}.main-index{text-align:center}.main-index
+amp-img{margin:15px auto;width:50%}@media (min-width:900px){.main-index
+p{font-size:2em}}.breadcrumbs{padding:1em;background-color:#f7f7f7}.breadcrumbs
+ul{display:block;margin:0;padding:0}.breadcrumbs ul li{display:inline-block;margin:0 .5em}.breadcrumbs ul
+li:before{content:' / ';position:relative;margin-left:-.5em;color:dimgray}.breadcrumbs ul li
+a{color:dimgray}.breadcrumbs ul li:last-child
+a{color:#ff1d55}header{background-color:#000000;color:#fff;padding:30px;position:relative}header
+.brand{display:inline-block;position:absolute;left:30px;top:20px;line-height:15px;text-transform:uppercase;padding:7.5px;font-size:1.4em}header
+.brand:hover{background-color:#ff1d55;color:#fff}header
+a{color:#fff;text-decoration:none;border-radius:7.5px;padding:7.5px}header
+a:hover{text-decoration:none;background-color:#fff;color:#ff1d55}header nav
+ul{padding:0;margin:0;display:block;text-align:right}header nav ul li{padding:0;margin:0
+7.5px;display:inline-block}header nav ul li.hamburger{display:none}header nav ul li.hamburger
+button{position:absolute;right:30px;top:20px;border:0;background-color:#fff;color:#ff1d55;font-weight:700;border-radius:50%;width:30px;height:30px;overflow:hidden;text-align:center;padding:0;margin:0}@media
+(max-width:900px){header nav ul li{display:none}header nav ul
+li.hamburger{display:inline-block}}.sidebarNavigation{width:210px;max-width:95%}.sidebarNavigation
+ul{padding:0;margin:0}.sidebarNavigation ul li{display:block}.sidebarNavigation ul li
+a{display:block;line-height:1.4em;padding:7.5px}footer{margin:60px
+auto;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;max-width:1180px;padding:30px;font-size:12px}footer
+a:hover{text-decoration:none}footer strong{text-transform:uppercase;margin-bottom:15px;display:block}footer strong
+a{color:#1d1d1d}footer ul{display:block;padding:0;margin:0}footer ul li{display:block;line-height:1.4em;padding:7.5px
+0;margin:0}footer ul li a{color:dimgray}footer
+.quarter-section{margin-bottom:30px;-ms-flex-preferred-size:25%;flex-basis:25%}@media (max-width:900px){footer
+.quarter-section{-ms-flex-preferred-size:33%;flex-basis:33%}}@media (max-width:700px){footer
+.quarter-section{-ms-flex-preferred-size:50%;flex-basis:50%}}@media (max-width:500px){footer
+.quarter-section{-ms-flex-preferred-size:100%;flex-basis:100%}}.boxes{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;font-size:12px}.boxes
+.box{-ms-flex-preferred-size:30%;flex-basis:30%;background-color:#f7f7f7;padding:30px;margin:7.5px
+0;text-align:left;font-size:12px}.boxes .box h3{font-size:12px;line-height:1em;padding:0;margin:0}.boxes .box
+a{padding:0;color:#ff1d55}.boxes .box p{color:dimgray;font-size:12px;margin:7.5px 0}@media (max-width:900px){.boxes
+.box{-ms-flex-preferred-size:45%;flex-basis:45%}}@media (max-width:500px){.boxes
+.box{-ms-flex-preferred-size:100%;flex-basis:100%}}
+
+.fixed-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: auto;
+}
+
+amp-img.contain img {
+  object-fit: contain;
+}
+
+.footnotes {
+  overflow-wrap: break-word;
+}
+
+    </style>
+
+
+</head>
+
+<body>
+
+<main>
+  
+  <section class="container page">
+  <article>
+    <header>
+      <h1>Spring Boot 集成 Liquibase</h1>
+    </header>
+
+    <p><code>Liquibase</code> 是一个用于跟踪、管理和应用数据库变化的开源的数据库重构工具。它将所有数据库的变化（包括结构和数据）都保存在 <code>changelog </code>文件中，便于版本控制，它的目标是提供一种数据库类型无关的解决方案，通过执行 schema 类型的文件来达到迁移。</p>
+<h3 id="liquibase-特性">Liquibase 特性</h3>
+<p>Liquibase 具备如下特性：</p>
+<ul>
+<li>支持几乎所有主流的数据库，如 MySQL, PostgreSQL, Oracle, Sql Server, DB2 等；</li>
+<li>支持多开发者的协作维护；</li>
+<li>日志文件支持多种格式，如 XML, YAML, JSON, SQL等；</li>
+<li>支持上下文相关逻辑</li>
+<li>生成数据库变更文档</li>
+<li>支持多种运行方式，如命令行、Spring 集成、Maven 插件、Gradle 插件等。</li>
+</ul>
+<p>更多详情介绍，请查阅 <a href="https://www.liquibase.org/documentation/index.html">Liquibase 官方文档</a></p>
+<h3 id="spring-boot-集成-liquibase">Spring Boot 集成 Liquibase</h3>
+<h4 id="添加依赖">添加依赖</h4>
+<p>因为 Spring Boot 已经内置支持整合 Liquibase，我们只需要在项目工程中引入 Liquibase 的依赖进行配置即可。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml"><span style="font-weight:bold">&lt;dependency&gt;</span>
+    <span style="font-weight:bold">&lt;groupId&gt;</span>org.liquibase<span style="font-weight:bold">&lt;/groupId&gt;</span>
+    <span style="font-weight:bold">&lt;artifactId&gt;</span>liquibase-core<span style="font-weight:bold">&lt;/artifactId&gt;</span>
+    <span style="font-weight:bold">&lt;version&gt;</span>3.6.3<span style="font-weight:bold">&lt;/version&gt;</span>
+<span style="font-weight:bold">&lt;/dependency&gt;</span>
+</code></pre></div><h4 id="配置-application-文件">配置 application 文件</h4>
+<p>在 classpath 中配置 application.properties 或 application.yml 文件，</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 启用liquibase
+liquibase.enabled=true
+# 存储变化的文件（changelog）位置
+liquibase.change-log=classpath:sample_change.sql
+# 检查存储变化的文件是否存在
+liquibase.check-change-log-location=true
+# 分环境执行，若在 changelog 文件中设置了对应 context 属性，则只会执行与 dev 对应值的 changeset
+liquibase.contexts=dev
+# 执行前首先删除数据库，默认 false。若设置为 true，则执行变更前，会先删除目标数据库，请谨慎
+liquibase.dropFirst=false
+# 执行更新时将回滚 SQL 写入的文件路径
+liquibase.rollback-file=
+# 如果使用工程已配置的 datasource 数据源，则以下三个数据库连接参数可不配置
+## 访问数据库的连接地址
+liquibase.url=jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&amp;characterEncoding=utf-8
+# 访问数据库的用户名
+liquibase.user=test
+# 访问数据库的密码
+liquibase.password=test
+
+</code></pre></div><blockquote>
+<p>注意：如果使用工程已配置的 <code>datasource</code> 数据源，则 <code>liquibase.url、liquibase.user</code> 和 <code>liquibase.password</code>这个三个参数可不配置，目标数据源即为工程已配置好的数据源。因为 Spring 会自动为 liquibase 获取可用的数据源，详情可查看这个类：<code>org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration</code>。</p>
+</blockquote>
+<h4 id="编写存储变更的-changelog-文件">编写存储变更的 changelog 文件</h4>
+<p>目前 Liquibase 支持 XML、YAML、JSON 和 SQL 格式四种格式的 changelog 文件。为了方便和直观，下面以基于 SQL 格式编写 changelog 文件：sample_change.sql</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--liquibase formatted <span style="color:#fff;font-weight:bold">sql</span>
+
+--changeset zhouyi:<span style="color:#ff0;font-weight:bold">1</span>
+<span style="color:#007f7f">-- 创建用户表
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">TABLE</span> `<span style="color:#fff;font-weight:bold">user</span>` (
+  `id` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">20</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL <span style="color:#fff;font-weight:bold">AUTO_INCREMENT</span>,
+  `name` <span style="color:#fff;font-weight:bold">varchar</span>(<span style="color:#ff0;font-weight:bold">50</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  `age` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">10</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  <span style="color:#fff;font-weight:bold">PRIMARY</span> <span style="color:#fff;font-weight:bold">KEY</span> (`id`)
+) <span style="color:#fff;font-weight:bold">ENGINE</span>=InnoDB <span style="color:#fff;font-weight:bold">DEFAULT</span> <span style="color:#fff;font-weight:bold">CHARSET</span>=utf8;
+
+--rollback <span style="color:#fff;font-weight:bold">drop</span> <span style="color:#fff;font-weight:bold">table</span> <span style="color:#fff;font-weight:bold">user</span>;
+
+--changeset zhouyi:<span style="color:#ff0;font-weight:bold">2</span>
+<span style="color:#fff;font-weight:bold">insert</span> <span style="color:#fff;font-weight:bold">into</span> <span style="color:#fff;font-weight:bold">user</span>(id, name, age) <span style="color:#fff;font-weight:bold">values</span>(<span style="color:#ff0;font-weight:bold">1</span>,<span style="color:#0ff;font-weight:bold">&#39;张三&#39;</span>,<span style="color:#ff0;font-weight:bold">29</span>);
+<span style="color:#fff;font-weight:bold">insert</span> <span style="color:#fff;font-weight:bold">into</span> <span style="color:#fff;font-weight:bold">user</span>(id, name, age) <span style="color:#fff;font-weight:bold">values</span>(<span style="color:#ff0;font-weight:bold">2</span>,<span style="color:#0ff;font-weight:bold">&#39;李四&#39;</span>,<span style="color:#ff0;font-weight:bold">20</span>);
+</code></pre></div><p>启动 Spring Boot 应用后，可以从日志看到输出：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">2019-03-27 13:13:16.439 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - DELETE FROM test.DATABASECHANGELOGLOCK
+2019-03-27 13:13:16.442 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - INSERT INTO test.DATABASECHANGELOGLOCK (ID, `LOCKED`) VALUES (1, 0)
+2019-03-27 13:13:16.506 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT `LOCKED` FROM test.DATABASECHANGELOGLOCK WHERE ID=1
+2019-03-27 13:13:16.586 [main] [] INFO  liquibase.lockservice.StandardLockService.info:42 - Successfully acquired change log lock
+2019-03-27 13:13:16.697 [main] [] INFO  liquibase.changelog.StandardChangeLogHistoryService.info:42 - Creating database history table with name: test.DATABASECHANGELOG
+2019-03-27 13:13:16.700 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - CREATE TABLE test.DATABASECHANGELOG (ID VARCHAR(255) NOT NULL, AUTHOR VARCHAR(255) NOT NULL, FILENAME VARCHAR(255) NOT NULL, DATEEXECUTED datetime NOT NULL, ORDEREXECUTED INT NOT NULL, EXECTYPE VARCHAR(10) NOT NULL, MD5SUM VARCHAR(35) NULL, `DESCRIPTION` VARCHAR(255) NULL, COMMENTS VARCHAR(255) NULL, TAG VARCHAR(255) NULL, LIQUIBASE VARCHAR(20) NULL, CONTEXTS VARCHAR(255) NULL, LABELS VARCHAR(255) NULL, DEPLOYMENT_ID VARCHAR(10) NULL)
+2019-03-27 13:13:17.570 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT COUNT(*) FROM test.DATABASECHANGELOG
+2019-03-27 13:13:17.575 [main] [] INFO  liquibase.changelog.StandardChangeLogHistoryService.info:42 - Reading from test.DATABASECHANGELOG
+2019-03-27 13:13:17.579 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT * FROM test.DATABASECHANGELOG ORDER BY DATEEXECUTED ASC, ORDEREXECUTED ASC
+2019-03-27 13:13:17.585 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT COUNT(*) FROM test.DATABASECHANGELOGLOCK
+2019-03-27 13:13:17.678 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - CREATE TABLE `user` (
+  `id` int(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  `age` int(10) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+2019-03-27 13:13:17.935 [main] [] INFO  liquibase.changelog.ChangeSet.info:42 - Custom SQL executed
+2019-03-27 13:13:17.937 [main] [] INFO  liquibase.changelog.ChangeSet.info:42 - ChangeSet classpath:sample_change.sql::1::zhouyi ran successfully in 297ms
+2019-03-27 13:13:17.938 [main] [] INFO  liquibase.executor.jvm.JdbcExecutor.info:42 - SELECT MAX(ORDEREXECUTED) FROM test.DATABASECHANGELOG
+
+</code></pre></div><p>从数据库中可以看到变化，首次运行新增了 3 张表，
+<img src="https://www.zhouyi.tech/upload/2020/06/table-52f4112c5d114d94a11c76e50e512f67.jpg" alt="table"></p>
+<p>其中<code>DATABASECHANGELOG</code> 和 <code>DATABASECHANGELOGLOCK</code> 表是 Liquibase 自动生成的，而 <code>user</code> 表是执行我们编写的  <code>changeset</code>变更集后生成的，并且也已经执行了第 2 个变更集，插入了两条数据。</p>
+<h3 id="sql-格式的-changelogs-文件">SQL 格式的 changelogs 文件</h3>
+<p>SQL 格式的 <code>changelog</code> 文件使用 SQL 注释作为元数据，为确保这个文件被 Liquibase 识别为 <code>changelog </code>文件，，SQL 文件必须以以下注释开头：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--liquibase formatted <span style="color:#fff;font-weight:bold">sql</span>
+</code></pre></div><h4 id="changeset-变更">changeset 变更</h4>
+<p>SQL 格式的 <code>changelog</code> 文件中在变更的 SQL 前需要加上以下注释，表示为一个 <code>changeset </code>变更集：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--changeset author:id attribute1:value1 attribute2:value2 [...]
+</code></pre></div><p>在之前的 <code>sample_change.sql</code> 文件中编写了两条 <code>changeset</code> (变更集)，</p>
+<p>变更集 <code>changeset</code> 是通过 <code>author + id</code> 的方式来保证唯一性，如以上 <code>zhouyi:1</code> 和  <code>zhouyi:2</code> 两条表更集。</p>
+<p>变更集提供以下属性：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>stripComments</td>
+<td>设置为 true 可在执行之前删除 SQL 中的任何注释, 否则为 false。如果未设置, 则默认值为 true</td>
+</tr>
+<tr>
+<td>splitStatements</td>
+<td></td>
+</tr>
+<tr>
+<td>endDelimiter</td>
+<td>应用于语句结尾的分隔符。默认为“；”，也可以设置为“”</td>
+</tr>
+<tr>
+<td>runAlways</td>
+<td>在每次运行时执行变更集, 即使之前已运行</td>
+</tr>
+<tr>
+<td>runOnChange</td>
+<td>在首次看到更改并每次更改变更集时执行更改</td>
+</tr>
+<tr>
+<td>context</td>
+<td>如果在运行时传递了特定上下文, 则执行更改。任何字符串都可以用于上下文名称, 并且大小写不敏感。</td>
+</tr>
+<tr>
+<td>logicalFilePath</td>
+<td>用于在创建变更集的唯一标识符时重写文件名和路径。移动或重命名更改日志时所必需。</td>
+</tr>
+<tr>
+<td>labels</td>
+<td>标签是对变更集进行分类的通用方法集类似上下文, 但工作方式正好相反。如果不是在运行时定义一组上下文, 然后在变更集中定义一个匹配表达式, 而是在上下文中定义一组标签, 在运行时定义一个匹配表达式。</td>
+</tr>
+<tr>
+<td>runInTransaction</td>
+<td>变更集是否应作为单个事务运行 (如果可能)，默认值为 true。请注意此属性，如果设置为 false, 并且通过运行包含多个语句的变更集部分发生错误, 则 liquibase 数据库的 <code>databasechangeloglock</code> 表将处于无效状态</td>
+</tr>
+<tr>
+<td>failOnError</td>
+<td>如果在执行变更集时发生错误, 迁移是否应返回失败</td>
+</tr>
+<tr>
+<td>dbms</td>
+<td>要用于该变更集的数据库的类型。当迁移步骤运行时, 它将根据此属性检查数据库类型，如：oracle、mysql</td>
+</tr>
+<tr>
+<td>logicalFilePath</td>
+<td>在数据库 <code>databasechangeloglock</code> 中设置逻辑文件路径, 而不是在执行 liquibase 的 sql 物理文件位置。</td>
+</tr>
+</tbody>
+</table>
+<h4 id="前置条件">前置条件</h4>
+<p>可以为每个变更集指定先决条件。目前, 仅支持 SQL 检查前置条件。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--preconditions onFail:HALT onError:HALT
+--precondition-<span style="color:#fff;font-weight:bold">sql</span>-<span style="color:#fff;font-weight:bold">check</span> expectedResult:<span style="color:#ff0;font-weight:bold">0</span> <span style="color:#fff;font-weight:bold">SELECT</span> COUNT(*) <span style="color:#fff;font-weight:bold">FROM</span> my_table
+</code></pre></div><h4 id="回滚操作">回滚操作</h4>
+<p>变更集可能包括回滚变更集时要应用的语句。回滚声明也是使用表注释。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--rollback <span style="color:#fff;font-weight:bold">SQL</span> STATEMENT
+</code></pre></div><p>例如在前面编写的 changelog 文件中的第一个 changeset：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-mysql" data-lang="mysql">--changeset zhouyi:<span style="color:#ff0;font-weight:bold">1</span>
+<span style="color:#007f7f">-- 创建用户表
+</span><span style="color:#007f7f"></span><span style="color:#fff;font-weight:bold">CREATE</span> <span style="color:#fff;font-weight:bold">TABLE</span> `<span style="color:#fff;font-weight:bold">user</span>` (
+  `id` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">20</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL <span style="color:#fff;font-weight:bold">AUTO_INCREMENT</span>,
+  `name` <span style="color:#fff;font-weight:bold">varchar</span>(<span style="color:#ff0;font-weight:bold">50</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  `age` <span style="color:#fff;font-weight:bold">int</span>(<span style="color:#ff0;font-weight:bold">10</span>) <span style="color:#fff;font-weight:bold">NOT</span> NULL,
+  <span style="color:#fff;font-weight:bold">PRIMARY</span> <span style="color:#fff;font-weight:bold">KEY</span> (`id`)
+) <span style="color:#fff;font-weight:bold">ENGINE</span>=InnoDB <span style="color:#fff;font-weight:bold">DEFAULT</span> <span style="color:#fff;font-weight:bold">CHARSET</span>=utf8;
+
+--rollback <span style="color:#fff;font-weight:bold">drop</span> <span style="color:#fff;font-weight:bold">table</span> <span style="color:#fff;font-weight:bold">user</span>;
+</code></pre></div><p>首先的变更的 SQL 含义是新建一个 <code>user</code> 表，回滚的 SQL 则表示删除新建的 <code>user</code> 表。</p>
+<h3 id="liquibase-最佳实践">Liquibase 最佳实践</h3>
+<p>下面介绍可应用于项目的一些最佳实践。</p>
+<h4 id="一个变更集只设置一次更改">一个变更集只设置一次更改</h4>
+<p>尽可能地避免对一个变更集进行多次更改，以避免自动提交 SQL 语句而可能使数据库处于非预期状态。
+如 <code>--changeset zhouyi:1</code> 变更集，只新建一张 <code>user</code> 表，后面不再修改该变更集，如果需要变更，可以新增一条变更集。</p>
+<h4 id="变更集的-id">变更集的 ID</h4>
+<p>选择适合您的方法。有的人是使用从 1 开始的序列号, 并且在更改日志中是唯一的，也有些人选择一个描述性的名称（例如：<code>new-address-table</code>）</p>
+<h4 id="总是考虑回滚">总是考虑回滚</h4>
+<p>尽量尝试以可以回滚的方式编写变更集，如 <code>--changeset zhouyi:1 </code> 变更集新建一个 <code>user</code> 表，在后面跟上回滚的 SQL， <code>--rollback drop table user;</code></p>
+<h4 id="为变更集添加注释">为变更集添加注释</h4>
+<p>尽量为每一个变更集条目增加注释，如  <code>-- 创建用户表</code></p>
+<h4 id="开发人员使用流程">开发人员使用流程</h4>
+<ul>
+<li>使用您最喜欢的 IDE 或编辑器, 创建一个包含更改的新本地更改集；</li>
+<li>运行 Liquibase 以执行新的变更集 (这将测试 SQL 代码)；</li>
+<li>在应用程序代码中执行相应的更改 (例如, Java 代码)；</li>
+<li>测试验证新的应用程序代码以及数据库更改；</li>
+<li>提交变更集和应用程序代码。</li>
+</ul>
+
+  </article>
+</section>
+
+
+</main>
+
+<amp-analytics type="googleanalytics">
+    <script type="application/json">
+        {
+            "vars": {
+                "account": "UA-154678195-1"
+            },
+            "triggers": {"trackEvent":{"on":"click","request":"event","selector":"body","vars":{"eventAction":"click","eventCategory":"body-click"}},"trackPageview":{"on":"visible","request":"pageview"}}
+        }
+    </script>
+</amp-analytics>
+
+</body>
+
+</html>

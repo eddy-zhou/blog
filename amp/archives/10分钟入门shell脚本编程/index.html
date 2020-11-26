@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+
+
+
+<html amp lang="zh-cn" class="no-js">
+<head>
+  <title>10分钟入门Shell脚本编程</title>
+  <meta charset="utf-8">
+
+  <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script><script async custom-element="amp-analytics" src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>
+
+    <script async src="https://cdn.ampproject.org/v0.js"></script>
+
+    
+
+
+
+
+  <link rel="canonical" href="https://www.zhouyi.tech/archives/10%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8shell%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B/">
+
+  <link rel="icon" href="https://www.zhouyi.tech/favicon.png" type="image/png" sizes="144x144">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+
+  <meta name="theme-color" content="#000000" />
+
+  
+<script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "技术学习之路",
+    
+    "url": "https:\/\/www.zhouyi.tech"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/www.zhouyi.tech"
+  
+  
+  
+  
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position":  1 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  3 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/",
+          "name": "amp"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  4 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/",
+          "name": "archives"
+        }
+    },{
+        "@type": "ListItem",
+        "position":  5 ,
+        "item": {
+          "@id": "https:\/\/www.zhouyi.tech\/amp\/archives\/10%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8shell%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B\/",
+          "name": "10%E5%88%86%E9%92%9F%E5%85%A5%E9%97%A8shell%E8%84%9A%E6%9C%AC%E7%BC%96%E7%A8%8B"
+        }
+    }]
+}
+</script>
+
+
+
+
+
+    <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+    <style amp-custom>
+        /**
+* stylesheet.html
+* ---------------
+* This is the stylesheet that gets injected as a fallback if no layouts/partials/stylesheet.html file is available
+* in your project file.
+*
+* For further details, please have a look at:
+* https://gohugo-amp.gohugohq.com/install/
+*
+**/
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block;vertical-align:baseline}audio:not([controls]){display:none;height:0}[hidden],template{display:none}a{background:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px
+dotted}b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em
+0}mark{background:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}img{border:0}svg:not(:root){overflow:hidden}figure{margin:1em
+40px}hr{box-sizing:content-box;height:0}pre{overflow:auto}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}button,input,optgroup,select,textarea{color:inherit;font:inherit;margin:0}button{overflow:visible}button,select{text-transform:none}button,html
+input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}button[disabled],html
+input[disabled]{cursor:default}button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}input{line-height:normal}input[type=checkbox],input[type=radio]{box-sizing:border-box;padding:0}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{height:auto}input[type=search]{-webkit-appearance:textfield;box-sizing:content-box}input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration{-webkit-appearance:none}fieldset{border:1px
+solid silver;margin:0 2px;padding:.35em .625em
+.75em}legend{border:0;padding:0}textarea{overflow:auto}optgroup{font-weight:700}td,th{padding:0}*{box-sizing:border-box}button,input,select,textarea{font:13px/1.4
+Helvetica,arial,freesans,clean,sans-serif}a{color:#4183c4;text-decoration:none}a:active,a:focus,a:hover{text-decoration:underline}.rule,hr{height:0;margin:15px
+0;overflow:hidden;background:transparent;border:0;border-bottom:1px solid
+#ddd}.rule:after,.rule:before,hr:after,hr:before{display:table;content:""}.rule:after,hr:after{clear:both}fieldset{padding:0;margin:0;border:0}label{font-size:13px;font-weight:700}#adv_code_search
+.search-page-label,input[type=email],input[type=number],input[type=password],input[type=tel],input[type=text],input[type=url],textarea{min-height:34px;padding:7px
+8px;font-size:13px;color:#333;vertical-align:middle;background-color:#fff;background-repeat:no-repeat;background-position:100%;border:1px
+solid #ccc;border-radius:3px;outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.075)}#adv_code_search
+.focus.search-page-label,#adv_code_search .search-page-label:focus,.focused
+.drag-and-drop,input[type=email].focus,input[type=email]:focus,input[type=number].focus,input[type=number]:focus,input[type=password].focus,input[type=password]:focus,input[type=tel].focus,input[type=tel]:focus,input[type=text].focus,input[type=text]:focus,input[type=url].focus,input[type=url]:focus,textarea.focus,textarea:focus{border-color:#51a7e8;box-shadow:inset
+0 1px 2px rgba(0,0,0,.075),0 0 5px
+rgba(81,167,232,.5)}.input-contrast,input.input-contrast{background-color:#fafafa}.input-contrast:focus,input.input-contrast:focus{background-color:#fff}:-moz-placeholder,::-webkit-input-placeholder{color:#aaa}::-webkit-validation-bubble-message{font-size:12px;color:#fff;background:#9c2400;border:0;border-radius:3px;-webkit-box-shadow:1px
+1px 1px
+rgba(0,0,0,.1)}input::-webkit-validation-bubble-icon{display:none}::-webkit-validation-bubble-arrow{background-color:#9c2400;border:1px
+solid #9c2400;-webkit-box-shadow:1px 1px 1px
+rgba(0,0,0,.1)}.absent{color:#c00}.anchor{position:absolute;top:0;bottom:0;left:0;display:block;padding-right:6px;padding-left:30px;margin-left:-30px}.anchor:focus{outline:none}h1,h2,h3,h4,h5,h6{position:relative;margin-top:1em;margin-bottom:16px;font-weight:700;line-height:1.4}h1
+.octicon-link,h2 .octicon-link,h3 .octicon-link,h4 .octicon-link,h5 .octicon-link,h6
+.octicon-link{display:none;color:#000;vertical-align:middle}h1:hover .anchor,h2:hover .anchor,h3:hover .anchor,h4:hover
+.anchor,h5:hover .anchor,h6:hover
+.anchor{height:1em;padding-left:8px;margin-left:-30px;line-height:1;text-decoration:none}h1:hover .anchor
+.octicon-link,h2:hover .anchor .octicon-link,h3:hover .anchor .octicon-link,h4:hover .anchor .octicon-link,h5:hover
+.anchor .octicon-link,h6:hover .anchor .octicon-link{display:inline-block}h1 code,h1 tt,h2 code,h2 tt,h3 code,h3 tt,h4
+code,h4 tt,h5 code,h5 tt,h6 code,h6
+tt{font-size:inherit}h1{font-size:2.25em;line-height:1.2}h1,h2{padding-bottom:.3em;border-bottom:1px solid
+#eee}h2{font-size:1.75em;line-height:1.225}h3{font-size:1.5em;line-height:1.43}h4{font-size:1.25em}h5,h6{font-size:1em}h6{color:#777}blockquote,dl,ol,p,pre,table,ul{margin-top:0;margin-bottom:16px}hr{height:4px;padding:0;margin:16px
+0;background-color:#e7e7e7;border:0 none}ol,ul{padding-left:2em}ol.no-list,ul.no-list{padding:0;list-style-type:none}ol
+ol,ol ul,ul ol,ul ul{margin-top:0;margin-bottom:0}li>p{margin-top:16px}dl,dl dt{padding:0}dl
+dt{margin-top:16px;font-size:1em;font-style:italic;font-weight:700}dl dd{padding:0
+16px;margin-bottom:16px}blockquote{padding:0 15px;color:#777;border-left:4px solid
+#ddd}blockquote>:first-child{margin-top:0}blockquote>:last-child{margin-bottom:0}table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}table
+th{font-weight:700}table td,table th{padding:6px 13px;border:1px solid #ddd}table
+tr{background-color:#fff;border-top:1px solid #ccc}table
+tr:nth-child(2n){background-color:#f8f8f8}img{max-width:100%;box-sizing:border-box}span.frame,span.frame>span{display:block;overflow:hidden}span.frame>span{float:left;width:auto;padding:7px;margin:13px
+0 0;border:1px solid #ddd}span.frame span img{display:block;float:left}span.frame span span{display:block;padding:5px 0
+0;clear:both;color:#333}span.align-center{display:block;overflow:hidden;clear:both}span.align-center>span{display:block;margin:13px
+auto 0;overflow:hidden;text-align:center}span.align-center span img{margin:0
+auto;text-align:center}span.align-right{display:block;overflow:hidden;clear:both}span.align-right>span{display:block;margin:13px
+0 0;overflow:hidden;text-align:right}span.align-right span
+img{margin:0;text-align:right}span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}span.float-left
+span{margin:13px 0
+0}span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}span.float-right>span{display:block;margin:13px
+auto
+0;overflow:hidden;text-align:right}code,tt{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}code:after,code:before,tt:after,tt:before{letter-spacing:-.2em;content:"\00a0"}code
+br,tt br{display:none}del
+code{text-decoration:inherit;vertical-align:text-top}pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.highlight{margin-bottom:16px}.highlight
+pre,pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.highlight
+pre{margin-bottom:0;word-break:normal}pre,pre code,pre tt{word-wrap:normal}pre code,pre
+tt{display:inline;max-width:none;padding:0;margin:0;overflow:initial;line-height:inherit;background-color:transparent;border:0}pre
+code:after,pre code:before,pre tt:after,pre
+tt:before{content:normal}abbr,address,article,aside,audio,b,blockquote,body,canvas,caption,cite,code,dd,del,details,dfn,div,dl,dt,em,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,p,pre,q,samp,section,small,span,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,ul,var,video{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}nav
+ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}a{margin:0;padding:0;font-size:100%;vertical-align:baseline;background:transparent}ins{text-decoration:none}ins,mark{background-color:#ff9;color:#000}mark{font-style:italic;font-weight:700}del{text-decoration:line-through}abbr[title],dfn[title]{border-bottom:1px
+dotted;cursor:help}table{border-collapse:collapse;border-spacing:0}hr{display:block;height:1px;border:0;border-top:1px
+solid #ccc;margin:1em
+0;padding:0}input,select{vertical-align:middle}body{background-color:#fff;color:#123;font-size:14px;font-family:Helvetica
+Neue,Helvetica,Segoe UI,Arial,freesans,sans-serif}main{max-width:1180px;padding:30px;margin:0 auto}@media
+(min-width:900px){main h1+p{font-size:2em}}h1{font-weight:300;font-size:2em;line-height:1.4em;margin:.5em
+0;font-family:Georgia,serif;-webkit-transition:color .4s;transition:color
+.4s}h2{font-size:2em}h2,h3{font-weight:300;margin:30px
+0}h3{font-size:1.8em}h4{font-size:1.6em}h4,h5{font-weight:300}h5{font-size:1.2em}h6{font-weight:300;font-size:1em}p{line-height:1.4em;font-size:1.2em;margin:15px
+0}blockquote{border-left:5px solid
+#ff1d55;background-color:#ffe9ee;padding:1em;margin-bottom:1em}.lightbox{background-color:rgba(3,121,196,.4);min-height:100vh;min-width:100vw;padding:30px}code{font:12px
+Consolas,Liberation Mono,Menlo,Courier,monospace}p>code{color:#ff1d55}pre
+code{display:block;background-color:#f7f7f7;padding:15px;overflow:auto;color:#123;line-height:1.4em}a{color:#ff1d55;text-decoration:none;-webkit-transition:color
+.4s,background .4s;transition:color .4s,background .4s}a:hover{color:#e9003a}ol,ul{margin:7.5px;padding:7.5px 15px}ol
+li,ul li{margin:7.5px 15px}.doc-parameters{list-style-type:none;padding:0}.doc-parameters
+li{display:block;margin:0;margin-bottom:15px}.doc-parameters .example,.doc-parameters blockquote{border-left:5px solid
+#0379c4;background-color:#96d5fd;color:#123;line-height:1em;font-size:1em;padding:1em;margin:0}.doc-parameters
+.example{background-color:#c8e9fe}.doc-parameters
+.parameter{display:block;padding:1em;background-color:#0379c4;color:#fff;margin:0}.doc-parameters .parameter
+strong{display:inline-block;padding:0
+.5em;border-radius:.25em;line-height:2em;background-color:#025a92}hr{height:.25em;padding:0;margin:24px
+0;background-color:#f7f7f7;border:0}.teaser{display:-webkit-box;display:-ms-flexbox;display:flex;text-align:left;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.teaser
+aside{-ms-flex-preferred-size:60%;flex-basis:60%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;padding:30px}@media
+(max-width:700px){.teaser aside{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content{-ms-flex-preferred-size:40%;flex-basis:40%;-ms-flex-item-align:center;-ms-grid-row-align:center;align-self:center;color:dimgray;font-size:12px}@media
+(max-width:700px){.teaser .content{-ms-flex-preferred-size:100%;flex-basis:100%}}.teaser
+.content.content-full{-ms-flex-preferred-size:100%;flex-basis:100%}.teaser .content
+h3{font-size:14px;text-transform:uppercase;font-weight:600;color:#123}.main-index{text-align:center}.main-index
+amp-img{margin:15px auto;width:50%}@media (min-width:900px){.main-index
+p{font-size:2em}}.breadcrumbs{padding:1em;background-color:#f7f7f7}.breadcrumbs
+ul{display:block;margin:0;padding:0}.breadcrumbs ul li{display:inline-block;margin:0 .5em}.breadcrumbs ul
+li:before{content:' / ';position:relative;margin-left:-.5em;color:dimgray}.breadcrumbs ul li
+a{color:dimgray}.breadcrumbs ul li:last-child
+a{color:#ff1d55}header{background-color:#000000;color:#fff;padding:30px;position:relative}header
+.brand{display:inline-block;position:absolute;left:30px;top:20px;line-height:15px;text-transform:uppercase;padding:7.5px;font-size:1.4em}header
+.brand:hover{background-color:#ff1d55;color:#fff}header
+a{color:#fff;text-decoration:none;border-radius:7.5px;padding:7.5px}header
+a:hover{text-decoration:none;background-color:#fff;color:#ff1d55}header nav
+ul{padding:0;margin:0;display:block;text-align:right}header nav ul li{padding:0;margin:0
+7.5px;display:inline-block}header nav ul li.hamburger{display:none}header nav ul li.hamburger
+button{position:absolute;right:30px;top:20px;border:0;background-color:#fff;color:#ff1d55;font-weight:700;border-radius:50%;width:30px;height:30px;overflow:hidden;text-align:center;padding:0;margin:0}@media
+(max-width:900px){header nav ul li{display:none}header nav ul
+li.hamburger{display:inline-block}}.sidebarNavigation{width:210px;max-width:95%}.sidebarNavigation
+ul{padding:0;margin:0}.sidebarNavigation ul li{display:block}.sidebarNavigation ul li
+a{display:block;line-height:1.4em;padding:7.5px}footer{margin:60px
+auto;display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;max-width:1180px;padding:30px;font-size:12px}footer
+a:hover{text-decoration:none}footer strong{text-transform:uppercase;margin-bottom:15px;display:block}footer strong
+a{color:#1d1d1d}footer ul{display:block;padding:0;margin:0}footer ul li{display:block;line-height:1.4em;padding:7.5px
+0;margin:0}footer ul li a{color:dimgray}footer
+.quarter-section{margin-bottom:30px;-ms-flex-preferred-size:25%;flex-basis:25%}@media (max-width:900px){footer
+.quarter-section{-ms-flex-preferred-size:33%;flex-basis:33%}}@media (max-width:700px){footer
+.quarter-section{-ms-flex-preferred-size:50%;flex-basis:50%}}@media (max-width:500px){footer
+.quarter-section{-ms-flex-preferred-size:100%;flex-basis:100%}}.boxes{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-line-pack:center;align-content:center;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;font-size:12px}.boxes
+.box{-ms-flex-preferred-size:30%;flex-basis:30%;background-color:#f7f7f7;padding:30px;margin:7.5px
+0;text-align:left;font-size:12px}.boxes .box h3{font-size:12px;line-height:1em;padding:0;margin:0}.boxes .box
+a{padding:0;color:#ff1d55}.boxes .box p{color:dimgray;font-size:12px;margin:7.5px 0}@media (max-width:900px){.boxes
+.box{-ms-flex-preferred-size:45%;flex-basis:45%}}@media (max-width:500px){.boxes
+.box{-ms-flex-preferred-size:100%;flex-basis:100%}}
+
+.fixed-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  margin: auto;
+}
+
+amp-img.contain img {
+  object-fit: contain;
+}
+
+.footnotes {
+  overflow-wrap: break-word;
+}
+
+    </style>
+
+
+</head>
+
+<body>
+
+<main>
+  
+  <section class="container page">
+  <article>
+    <header>
+      <h1>10分钟入门Shell脚本编程</h1>
+    </header>
+
+    <h2 id="前言">前言</h2>
+<p>写下这篇文章，是对自己在学习和使用过程中的总结，文笔不是很好，如果有什么问题欢迎沟通交流</p>
+<h2 id="shell是什么">Shell是什么</h2>
+<p>Shell是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务, Shell脚本（shell script），是一种为Shell编写的脚本程序。我们经常说的shell通常都是指shell脚本。</p>
+<h2 id="环境和工具">环境和工具</h2>
+<p>Shell跟java、php、Python编程一样，只要有一个能编写代码的文本编辑器和一个能解释执行的脚本解释器就可以了。</p>
+<p>Mac OS，Linux 自带了shell解释器，Windows比较麻烦，因为Win7专业版和旗舰版默认安装PowerShell，标准版和家庭版中就没有安装的，为了方便建议安装cygwin</p>
+<h2 id="phppython-也可以作为shell编程">PHP、Python 也可以作为Shell编程</h2>
+<p>PHP、Python是属于高级编程语言，但是也可以做Shell编程，因为只要有解释器，也可以用作脚本编程</p>
+<p>如下是一个Python Shell Script示例（假设文件名叫op_python_base.py）：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#!/usr/bin/env python3 //告诉Python从系统环境中找python
+# -*- coding: utf-8 -*- //设置为UTF-8编码
+
+for index in range(10):
+    print(index);
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_python_base.py">op_python_base</a></p>
+<p>如下是一个PHP Shell Script示例（假设文件名叫op_php_base.php）：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#!/usr/bin/php
+&lt;?php
+
+for($i=0 ;$i&lt;10; $i++){
+    echo $i;
+}
+
+?&gt;
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_php_base.php">op_php_base</a></p>
+<h2 id="为什么要学习shell">为什么要学习Shell</h2>
+<p>既然PHP、Python都可以用来写脚本编程，那为什么还要学习陌生、晦涩难懂的Shell，主要有一下几个原因</p>
+<ul>
+<li>
+<p>环境兼容性，Win7专业版和旗舰版默认安装PowerShell，标准版和家庭版中就没有安装的，其他主流的操作系统都预制了Shell解释器，所以使用sh、bash编写，提供给其他人使用是非常方便的，但是PHP、Python 等等需要安装相应的环境</p>
+</li>
+<li>
+<p>如果你想做一些定时任务比如说检测进程是否存在，自动备份，或者说自动部署环境、服务器之间的数据同步等等sh、bash会是你最好的选择</p>
+</li>
+</ul>
+<h2 id="sh与bash">sh与bash</h2>
+<p>sh: Bourne shell，POSIX（Portable Operating System Interface）标准的shell解释器，它的二进制文件路径通常是/bin/sh</p>
+<p>bash: Bash是Bourne shell的替代品，属GNU Project，二进制文件路径通常是/bin/bash</p>
+<h2 id="第一个shell脚本">第一个shell脚本</h2>
+<h3 id="我们先来看一个例子">我们先来看一个例子</h3>
+<p>我相信写过代码的童鞋，应该对下面的代码很熟悉并不陌生，（假设文件名叫op_base.sh）：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#0f0;font-weight:bold">#!/usr/bin/env bash
+</span><span style="color:#0f0;font-weight:bold"></span>mkdir code
+<span style="color:#fff;font-weight:bold">cd</span>  code
+<span style="color:#fff;font-weight:bold">for</span> ((i=0; i&lt;3; i++)); <span style="color:#fff;font-weight:bold">do</span>
+    touch test_<span style="color:#0ff;font-weight:bold">${</span>i<span style="color:#0ff;font-weight:bold">}</span>.txt
+    <span style="color:#fff;font-weight:bold">echo</span> <span style="color:#0ff;font-weight:bold">&#34;shell很简单&#34;</span> &gt;&gt; test_<span style="color:#0ff;font-weight:bold">${</span>i<span style="color:#0ff;font-weight:bold">}</span>.txt
+<span style="color:#fff;font-weight:bold">done</span>
+</code></pre></div><p>第一行：从系统path中寻找指定脚本的解释程序<br>
+第二行：创建 名叫code文件夹<br>
+第三行：进入创建的文件夹<br>
+第四行：for循环3次<br>
+第四行：创建文件<br>
+第五行：往创建的文件中写入信息<br>
+第六行：结束循环</p>
+<p>mkdir, touch，cd，touch，echo都是系统命令，在命令行下可以直接执行<br>
+for, do, done 是shell脚本语言 for循环的语法</p>
+<p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_base.sh">op_base.sh</a></p>
+<h3 id="编写shell">编写Shell</h3>
+<p>新建一个文件，扩展名为sh（sh代表shell），扩展名并不影响脚本执行，见名知意就好，如果你用php，扩展名为php，如果你用Python，扩展名为python</p>
+<p>第一行一般是这样：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#0f0;font-weight:bold">#!/usr/bin/php
+</span><span style="color:#0f0;font-weight:bold"></span><span style="color:#007f7f">#!/usr/bin/env python3</span>
+<span style="color:#007f7f">#!/usr/bin/env bash</span>
+</code></pre></div><h1 id="是一个约定的标记它告诉系统这个脚本需要什么解释器来执行">!”是一个约定的标记，它告诉系统这个脚本需要什么解释器来执行</h1>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">/env 是系统的PATH目录中查找
+</code></pre></div><h3 id="运行-shell-脚本有两种方法">运行 Shell 脚本有两种方法：</h3>
+<h4 id="作为可执行程序">作为可执行程序</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">chmod +x op_base.sh
+./op_base.sh
+</code></pre></div><p>第一行设置 op_base.sh可执行权限<br>
+第二行执行op_base.sh</p>
+<h4 id="作为参数">作为参数</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">/bin/sh op_base.sh
+</code></pre></div><h3 id="变量">变量</h3>
+<p>定义变量时，变量名前不需要加符号和Python一样但是在PHP语言中变量需要加$，如：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">my_name=&#34;jack&#34;
+my_name=&#39;jack&#39;;
+</code></pre></div><p>ps: 变量名和等号之间不能有空格,变量后面不能有;</p>
+<p>Shell中的引号和PHP类似，字符串可以用单引号，也可以用双引号</p>
+<p>单引号字符串的限制：</p>
+<ul>
+<li>单引号里的任何字符都会原样输出，单引号字符串中的变量是无效的</li>
+<li>单引号字串中不能出现单引号（对单引号使用转义符后也不行</li>
+</ul>
+<p>双引号：</p>
+<ul>
+<li>双引号里可以有变量</li>
+<li>双引号里可以出现转义字符</li>
+</ul>
+<p>但是在Python中单引号和双引号是没有区别，但是Python 还有三个引号，在三个引号内字符都不会被转义</p>
+<h3 id="使用变量">使用变量</h3>
+<p>对于已经定义过的变量，使用的适合在前面添加$</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">echo $my_name
+echo ${my_name}
+</code></pre></div><p>变量名外面的花括号是可选的，加不加都行,建议使用第二种形式</p>
+<h3 id="注释">注释</h3>
+<p>以“#”开头的行就是注释，会被解释器忽略。</p>
+<h4 id="多行注释">多行注释</h4>
+<p>sh里没有多行注释，只能每一行加一个#号。就像这样：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">#--------------------------------------------
+# Author:  jack 
+# weibo: OO是有情怀的PM
+#
+# Notes: 10分钟入门Shell脚本编程
+#
+# Project home page:
+#       https://github.com/dpm100/fast_guides
+#--------------------------------------------
+</code></pre></div><h3 id="字符串">字符串</h3>
+<p>字符串可以用单引号，也可以用双引号，也可以不用引号。单双引号的区别跟PHP类似</p>
+<p>Shell不像其他语言有php、python 有很多数据类型，在Shell中常用的数据类型字符串数字和字符串（ps: 除了数字和字符串，也没啥其它类型好用了，哈哈）</p>
+<p>单引号字符串的限制：</p>
+<ul>
+<li>单引号里的任何字符都会原样输出，单引号字符串中的变量是无效的</li>
+<li>单引号字串中不能出现单引号（对单引号使用转义符后也不行</li>
+</ul>
+<p>双引号：</p>
+<ul>
+<li>双引号里可以有变量</li>
+<li>双引号里可以出现转义字符</li>
+</ul>
+<h3 id="字符串操作">字符串操作</h3>
+<h4 id="拼接字符串">拼接字符串</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">my_name=&#34;jack&#34;;
+my_age=&#34;20岁&#34;
+echo $my_name $my_age
+echo $my_name$my_age
+</code></pre></div><h4 id="获取字符串长度">获取字符串长度</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">echo ${#my_name}
+</code></pre></div><h4 id="截取字符串">截取字符串</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">echo ${my_name:0:2}
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_str.sh">op_str.sh</a></p>
+<h3 id="shell-数组">Shell 数组</h3>
+<h4 id="定义数组">定义数组</h4>
+<p>在Shell中，用括号来表示数组，数组元素用&quot;空格&quot;符号分割开。定义数组的一般形式为：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">name=(name1 name2 name3)
+</code></pre></div><p>还可以单独定义数组的各个分量：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">ary[0]=name1
+ary[1]=name2
+ary[3]=name3
+</code></pre></div><p>ps: 可以不使用连续的下标，而且下标的范围没有限制</p>
+<h4 id="读取数组">读取数组</h4>
+<p>读取数组元素值的一般格式是：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">${数组名[下标]}
+</code></pre></div><p>例如：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">echo ${name[0]}
+</code></pre></div><p>使用@符号可以获取数组中的所有元素，例如：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">echo ${name[@]}
+</code></pre></div><h4 id="获取数组的长度">获取数组的长度</h4>
+<p>获取数组长度的方法与获取字符串长度的方法相同，例如：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># 取得数组元素的个数
+length=${#name[@]}
+echo $length
+
+# 或者
+length=${#name[*]}
+echo $length
+
+# 取得数组单个元素的长度
+lengthn=${#name[n]}
+echo $length
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_arry.sh">op_arry.sh</a></p>
+<h3 id="shell-流程控制">Shell 流程控制</h3>
+<p>和Java、PHP、Python等语言不一样，sh的流程控制不可为空，如(以下为PHP流程控制写法)：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">&lt;?php
+if (isset($_GET[&#34;q&#34;])) {
+    search(q);
+}
+else {
+    // 不做任何事情
+}
+</code></pre></div><p>在sh/bash里可不能这么写，如果else分支没有语句执行，就不要写这个else</p>
+<h4 id="if">if</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">if condition1
+then
+    command1
+elif condition2 
+then 
+    command2
+else
+    commandN
+fi
+</code></pre></div><p>例子：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#0f0;font-weight:bold">#!/usr/bin/env bash
+</span><span style="color:#0f0;font-weight:bold"></span>
+a=<span style="color:#ff0;font-weight:bold">1</span>
+b=<span style="color:#ff0;font-weight:bold">2</span>
+<span style="color:#fff;font-weight:bold">if</span> [ $a == $b ]
+    <span style="color:#fff;font-weight:bold">then</span>
+        <span style="color:#fff;font-weight:bold">echo</span> <span style="color:#0ff;font-weight:bold">&#34;a 等于 b&#34;</span>
+ <span style="color:#fff;font-weight:bold">elif</span> [ $a -gt $b ]
+    <span style="color:#fff;font-weight:bold">then</span>
+        <span style="color:#fff;font-weight:bold">echo</span> <span style="color:#0ff;font-weight:bold">&#34;a 大于 b&#34;</span>
+ <span style="color:#fff;font-weight:bold">elif</span> [ $a -lt $b ]
+    <span style="color:#fff;font-weight:bold">then</span>
+        <span style="color:#fff;font-weight:bold">echo</span> <span style="color:#0ff;font-weight:bold">&#34;a 小于 b&#34;</span>
+ <span style="color:#fff;font-weight:bold">else</span>
+    <span style="color:#fff;font-weight:bold">echo</span> <span style="color:#0ff;font-weight:bold">&#34;没有符合的条件&#34;</span>
+
+ <span style="color:#fff;font-weight:bold">fi</span>
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_if.sh">op_if.sh</a></p>
+<h4 id="for-循环">for 循环</h4>
+<p>Shell的for循环和Python 有点类似</p>
+<h5 id="python的for循环">Python的for循环</h5>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">for index in 1,2,3,4,5:
+    print(index);
+</code></pre></div><h5 id="shell的for循环第一种写法">Shell的for循环，第一种写法</h5>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">for index in 1 2 3 4 5; do
+    echo &#34;index=&#34;$index
+done
+</code></pre></div><h5 id="shell的for循环第二种写法">Shell的for循环，第二种写法</h5>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">for ((i=0; i&lt;5; i++)); do
+    echo &#34;i=&#34;$i
+done
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_for.sh">op_for.sh</a></p>
+<h4 id="while-语句">while 语句</h4>
+<p>while循环用于不断执行一系列命令，也用于从输入文件中读取数据；命令通常为测试条件。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">int=1
+while(( $int&lt;=5 ))
+do
+    echo $int
+    let &#34;int++&#34;
+done
+</code></pre></div><p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/op_while.sh">op_while.sh</a></p>
+<h3 id="shell结合系统命令">Shell结合系统命令</h3>
+<p>sh脚本结合系统命令便有了强大的威力，在字符处理领域，有grep、awk、sed三剑客，grep负责找出特定的行，awk能将行拆分成多个字段，sed则可以实现更新插入删除等写操作。</p>
+<h4 id="例如定时检测nginxmysql是否被关闭">例如定时检测nginx、mysql是否被关闭</h4>
+<pre><code>path=/var/log
+log=${path}/httpd-mysql.log
+
+name=(apache mysql)
+
+exs_init[0]=&quot;service httpd start&quot;
+exs_init[1]=&quot;/etc/init.d/mysqld restart&quot;
+
+for ((i=0; i&lt;2; i++)); do
+    echo &quot;检查${name[i]}进程是否存在&quot;
+    ps -ef|grep ${name[i]} |grep -v grep
+    if [ $? -eq 0 ]; then
+        pid=$(pgrep -f ${name[i]})
+        echo &quot;`date +&quot;%Y-%m-%d %H:%M:%S&quot;` ${name[$i]} is running with pid $pid&quot; &gt;&gt; ${log}
+     else
+        $(${exs_init[i]})
+        echo &quot;`date +&quot;%Y-%m-%d %H:%M:%S&quot;` ${name[$i]} start success&quot; &gt;&gt; ${log}
+    fi
+done
+</code></pre>
+<p>解释：检测 nginx、mysql进程是否存在，如果不存在了会自动重新启动。<br>
+脚本每次运行会写日志的，没事可以去看看该日志文件，如果进程是不是真的经常性不存在，恐怕就要排查一下深层原因了。</p>
+<p>源码：<a href="https://github.com/dpm100/fast_guides/blob/master/fast-shell/check_apache_mysql.sh">check_nginx.sh</a></p>
+<h4 id="编辑-etccrontab-文件">编辑 /etc/crontab 文件</h4>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">crontab -e
+</code></pre></div><p>在文件最后添加一行：</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">*/5 * * * * /xxx/check_nginx.sh &gt; /dev/null 2&gt;&amp;1
+</code></pre></div><p>上表示每 5 分钟，执行一下脚本 /xxx/check_nginx.sh，其中xxx代表路径</p>
+<p>/dev/null 2&gt;&amp;1 的意思是该条shell命令将不会输出任何信息到控制台，也不会有任何信息输出到文件中。</p>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># For details see man 4 crontabs
+
+# Example of job definition:
+# .---------------- minute (0 - 59)
+# |  .------------- hour (0 - 23)
+# |  |  .---------- day of month (1 - 31)
+# |  |  |  .------- month (1 - 12) OR jan,feb,mar,apr ...
+# |  |  |  |  .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,fri,sat
+# |  |  |  |  |
+# *  *  *  *  * command to be executed
+</code></pre></div><h3 id="添加完配置需要重启才能生效">添加完配置，需要重启才能生效</h3>
+<div class="highlight"><pre style="color:#e5e5e5;background-color:#000;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">service crond restart
+</code></pre></div>
+  </article>
+</section>
+
+
+</main>
+
+<amp-analytics type="googleanalytics">
+    <script type="application/json">
+        {
+            "vars": {
+                "account": "UA-154678195-1"
+            },
+            "triggers": {"trackEvent":{"on":"click","request":"event","selector":"body","vars":{"eventAction":"click","eventCategory":"body-click"}},"trackPageview":{"on":"visible","request":"pageview"}}
+        }
+    </script>
+</amp-analytics>
+
+</body>
+
+</html>
